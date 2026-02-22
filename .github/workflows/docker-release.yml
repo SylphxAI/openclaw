@@ -20,7 +20,7 @@ env:
 jobs:
   # Build amd64 image
   build-amd64:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     permissions:
       packages: write
       contents: read
@@ -118,7 +118,7 @@ jobs:
 
   # Create multi-platform manifest
   create-manifest:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     permissions:
       packages: write
       contents: read
