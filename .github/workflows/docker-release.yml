@@ -20,7 +20,7 @@ env:
 jobs:
   # Build amd64 image
   build-amd64:
-    runs-on: ubuntu-latest
+    runs-on: sylphx-linux-standard
     permissions:
       packages: write
       contents: read
@@ -69,7 +69,7 @@ jobs:
 
   # Build arm64 image
   build-arm64:
-    runs-on: ubuntu-24.04-arm
+    runs-on: sylphx-linux-standard-arm
     permissions:
       packages: write
       contents: read
@@ -118,7 +118,7 @@ jobs:
 
   # Create multi-platform manifest
   create-manifest:
-    runs-on: ubuntu-latest
+    runs-on: sylphx-linux-standard
     permissions:
       packages: write
       contents: read
