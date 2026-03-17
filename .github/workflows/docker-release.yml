@@ -69,7 +69,7 @@ jobs:
 
   # Build arm64 image
   build-arm64:
-    runs-on: sylphx-linux-standard-arm
+    runs-on: ubuntu-24.04-arm
     permissions:
       packages: write
       contents: read
