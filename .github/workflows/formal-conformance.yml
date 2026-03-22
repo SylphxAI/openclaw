@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   formal_conformance:
-    runs-on: sylphx-linux-standard
+    runs-on: [self-hosted, sylphx, linux, standard]
     timeout-minutes: 20
     permissions:
       contents: read
