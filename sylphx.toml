@@ -1,0 +1,23 @@
+version = "1"
+
+[project]
+id = "proj_6q6v6xhacz8v4v4ysstzqsrrvh"
+name = "OpenClaw"
+slug = "plus-plug-nttz"
+org_id = "org_6pqwxr2vep8btrm0t7nteqce5p"
+org = "sylphx"
+default_env = "production"
+default_env_id = "env_01kqzhqwacejq812nh7jph954r"
+
+[build]
+strategy = "dockerfile"
+dockerfile = "sylphx/Dockerfile.base"
+context = "sylphx"
+
+[[services]]
+name = "openclaw"
+type = "web"
+port = 3000
+[services.health]
+mode = "http"
+path = "/healthz"

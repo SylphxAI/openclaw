@@ -1,0 +1,190 @@
+{
+  "models": {
+    "providers": {
+      "anthropic": {
+        "baseUrl": "https://api.sylphx.ai/v1",
+        "timeoutSeconds": 600,
+        "models": [
+          {
+            "api": "openai-responses",
+            "contextWindow": 200000,
+            "id": "claude-sonnet-4-6",
+            "input": [
+              "text",
+              "image"
+            ],
+            "maxTokens": 64000,
+            "name": "Claude Sonnet 4.6",
+            "reasoning": true
+          }
+        ]
+      },
+      "sylphx": {
+        "baseUrl": "https://api.sylphx.ai/v1",
+        "timeoutSeconds": 600,
+        "models": [
+          {
+            "api": "openai-responses",
+            "contextWindow": 200000,
+            "id": "auto",
+            "input": [
+              "text",
+              "image"
+            ],
+            "maxTokens": 64000,
+            "name": "Sylphx Auto",
+            "reasoning": true
+          },
+          {
+            "api": "openai-responses",
+            "contextWindow": 200000,
+            "id": "claude-sonnet-4-6",
+            "input": [
+              "text",
+              "image"
+            ],
+            "maxTokens": 64000,
+            "name": "Claude Sonnet 4.6",
+            "reasoning": true
+          }
+        ]
+      },
+      "zai": {
+        "baseUrl": "https://open.bigmodel.cn/api/paas/v4",
+        "models": [
+          {
+            "api": "openai-completions",
+            "contextWindow": 202752,
+            "id": "glm-5",
+            "input": [
+              "text"
+            ],
+            "maxTokens": 16384,
+            "name": "GLM 5",
+            "reasoning": true
+          },
+          {
+            "api": "openai-completions",
+            "contextWindow": 202752,
+            "id": "glm-5-turbo",
+            "input": [
+              "text"
+            ],
+            "maxTokens": 16384,
+            "name": "GLM 5 Turbo",
+            "reasoning": true
+          }
+        ]
+      }
+    }
+  },
+  "tools": {
+    "profile": "full",
+    "deny": null,
+    "elevated": {
+      "enabled": true,
+      "allowFrom": {
+        "telegram": [
+          "*"
+        ]
+      }
+    },
+    "exec": {
+      "host": "gateway",
+      "security": "full",
+      "ask": "off",
+      "strictInlineEval": false,
+      "timeoutSec": 7200,
+      "applyPatch": {
+        "enabled": true,
+        "workspaceOnly": false
+      }
+    }
+  },
+  "messages": {
+    "visibleReplies": "automatic",
+    "groupChat": {
+      "visibleReplies": "automatic"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": "sylphx/auto",
+      "elevatedDefault": "full",
+      "blockStreamingDefault": "off",
+      "toolProgressDetail": "explain",
+      "sandbox": {
+        "mode": "off"
+      },
+      "workspace": "/workspace",
+      "maxConcurrent": 2,
+      "subagents": {
+        "maxConcurrent": 1,
+        "archiveAfterMinutes": 120
+      },
+      "memorySearch": {
+        "enabled": true,
+        "sync": {
+          "onSessionStart": false,
+          "onSearch": true,
+          "watch": false,
+          "watchDebounceMs": 10000
+        }
+      }
+    }
+  },
+  "channels": {
+    "telegram": {
+      "mediaMaxMb": 100,
+      "network": {
+        "dnsResultOrder": "ipv4first"
+      },
+      "streaming": {
+        "mode": "progress",
+        "preview": {
+          "toolProgress": true,
+          "commandText": "status"
+        },
+        "progress": {
+          "toolProgress": true,
+          "commandText": "status"
+        },
+        "block": {
+          "enabled": false
+        }
+      }
+    }
+  },
+  "hooks": {
+    "internal": {
+      "enabled": false
+    }
+  },
+  "skills": {
+    "load": {
+      "watch": false,
+      "watchDebounceMs": 10000
+    }
+  },
+  "diagnostics": {
+    "enabled": true,
+    "flags": [
+      "timeline"
+    ]
+  },
+  "gateway": {
+    "port": 3000,
+    "reload": {
+      "mode": "off",
+      "debounceMs": 5000
+    },
+    "auth": {
+      "mode": "token"
+    },
+    "controlUi": {
+      "dangerouslyAllowHostHeaderOriginFallback": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    }
+  }
+}

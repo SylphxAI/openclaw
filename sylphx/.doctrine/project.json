@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "repo": "SylphxAI/openclaw-deploy",
+    "name": "openclaw-deploy",
+    "lifecycle": "production",
+    "layer": "application",
+    "summary": "Production customer application repository for deploying and operating multiple OpenClaw assistant instances on Sylphx with zero-knowledge platform boundaries.",
+    "goals": [
+      "Declare OpenClaw runtime intent, image build inputs, and instance configuration for customer-owned deployments.",
+      "Keep platform interaction limited to documented service templates, environment configuration, secrets flow, and runtime contract surfaces.",
+      "Preserve a production-grade path for adding, deploying, and verifying OpenClaw instances without committing secrets."
+    ],
+    "nonGoals": [
+      "Own the generic Sylphx platform scheduler, deployment engine, service template implementation, or environment fan-out state.",
+      "Own upstream OpenClaw core behavior beyond the customer image and runtime integration declared in this repository.",
+      "Store live secrets or make the platform aware of OpenClaw-specific product semantics."
+    ]
+  },
+  "boundaries": {
+    "owns": [
+      {
+        "name": "openclaw-customer-runtime",
+        "description": "Customer-owned OpenClaw service intent, runtime contract, durable data expectations, and app-level operational policy."
+      },
+      {
+        "name": "openclaw-instance-catalog",
+        "description": "Instance declarations, provider choices, and customer-side configuration represented in agents.yaml and related docs."
+      },
+      {
+        "name": "openclaw-image-build",
+        "description": "Dockerfile, entrypoint scripts, base-image workflow, and runtime wiring required to build and launch the OpenClaw customer image."
+      }
+    ],
+    "doesNotOwn": [
+      "Generic Sylphx platform scheduling, deploy orchestration, service template implementation, environment fan-out state, or platform persistence semantics.",
+      "Upstream OpenClaw product semantics except where adapted by this customer app's image and runtime contract.",
+      "Enterprise doctrine, project manifest schema, rollout issue reconciliation, org rulesets, or shared delivery policy."
+    ],
+    "publicSurfaces": [
+      {
+        "type": "documentation",
+        "name": "Customer app README",
+        "location": "README.md"
+      },
+      {
+        "type": "manifest",
+        "name": "Sylphx service manifest",
+        "location": "sylphx.toml"
+      },
+      {
+        "type": "manifest",
+        "name": "OpenClaw instance catalog",
+        "location": "agents.yaml"
+      },
+      {
+        "type": "manifest",
+        "name": "Container build contract",
+        "location": "Dockerfile.base"
+      },
+      {
+        "type": "api",
+        "name": "Runtime entrypoint and config lock scripts",
+        "location": "scripts/"
+      },
+      {
+        "type": "documentation",
+        "name": "Runtime decision records",
+        "location": "docs/decisions/"
+      },
+      {
+        "type": "workflow",
+        "name": "Manual base image workflow",
+        "location": ".github/workflows/build-base.yml"
+      },
+      {
+        "type": "manifest",
+        "name": "Project control-plane manifest",
+        "location": ".doctrine/project.json"
+      }
+    ],
+    "allowedDependencies": [
+      {
+        "repo": "SylphxAI/doctrine",
+        "surface": "project manifest schema, standards, and rollout audit",
+        "direction": "downward"
+      },
+      {
+        "repo": "SylphxAI/platform",
+        "surface": "generic service template, environment, deployment, and secrets flow contracts",
+        "direction": "peer-public"
+      },
+      {
+        "repo": "SylphxAI/sylphx-ai",
+        "surface": "documented provider gateway behavior consumed by OpenClaw instances",
+        "direction": "peer-public"
+      },
+      {
+        "repo": "openclaw/openclaw",
+        "surface": "upstream OpenClaw runtime behavior integrated into the customer image",
+        "direction": "external"
+      }
+    ],
+    "forbiddenCouplings": [
+      "Do not make Sylphx platform code aware of OpenClaw-specific runtime semantics instead of using documented generic service surfaces.",
+      "Do not commit live secrets, tenant credentials, or secret-derived values to this repository.",
+      "Do not treat source revert as sufficient recovery after deployed instance, durable data, or provider side effects have occurred.",
+      "Do not encode unrelated customer product behavior into the shared OpenClaw image or platform contract."
+    ]
+  },
+  "documentation": {
+    "adr": {
+      "path": "docs/decisions/",
+      "status": "present"
+    },
+    "specs": {
+      "path": "README.md",
+      "status": "present"
+    },
+    "catalog": {
+      "path": ".doctrine/project.json",
+      "status": "present"
+    },
+    "runbooks": {
+      "path": "README.md",
+      "status": "present"
+    },
+    "generatedReferences": {
+      "path": "docs/reference/",
+      "status": "planned"
+    }
+  },
+  "delivery": {
+    "ciModel": "legacy-ci",
+    "requiredContexts": [],
+    "deployPath": "Normal production delivery is through Sylphx platform push deployment from this repository; .github/workflows/build-base.yml is manual-only for explicit base-image operations.",
+    "productionProof": "Production changes require Sylphx deployment readback, service health evidence, affected instance smoke evidence, and explicit confirmation that no secrets were committed.",
+    "recoveryClass": "forward-fix-only"
+  },
+  "adoption": {
+    "status": "baseline",
+    "gaps": [
+      {
+        "id": "production-proof-formalization",
+        "description": "Turn deployment readback, health, instance smoke, and secret-free evidence into a durable runbook or generated release checklist.",
+        "owner": "SylphxAI/openclaw-deploy",
+        "target": "Before full adoption"
+      },
+      {
+        "id": "instance-schema-missing",
+        "description": "Add or document schema validation for agents.yaml before agent-written instance changes are considered fully adopted.",
+        "owner": "SylphxAI/openclaw-deploy",
+        "target": "Before commercial-grade instance automation"
+      },
+      {
+        "id": "forward-only-recovery-runbook",
+        "description": "Document forward-only recovery for deployed image, durable data, provider, and secret side effects.",
+        "owner": "SylphxAI/openclaw-deploy",
+        "target": "Before commercial-grade operation"
+      }
+    ]
+  }
+}
