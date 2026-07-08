@@ -12,5 +12,12 @@
   },
   "dependencies": {
     "openclaw": "workspace:*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.12",
+    "@sylphx/biome-config": "^0.4.1"
+  },
+  "scripts": {
+    "lint:fix": "biome check --write ."
   }
 }
