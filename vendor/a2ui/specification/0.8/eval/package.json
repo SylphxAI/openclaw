@@ -23,7 +23,7 @@
     "dotenv-cli": "^10.0.0",
     "prettier": "^3.6.2",
     "tsx": "^4.20.5",
-    "typescript": "^5.9.2",
+    "typescript": "^7.0.2",
     "yargs": "^18.0.0"
   },
   "dependencies": {

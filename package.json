@@ -63,11 +63,11 @@
     "ios:gen": "cd apps/ios && xcodegen generate",
     "ios:open": "cd apps/ios && xcodegen generate && open OpenClaw.xcodeproj",
     "ios:run": "bash -lc 'cd apps/ios && xcodegen generate && xcodebuild -project OpenClaw.xcodeproj -scheme OpenClaw -destination \"${IOS_DEST:-platform=iOS Simulator,name=iPhone 17}\" -configuration Debug build && xcrun simctl boot \"${IOS_SIM:-iPhone 17}\" || true && xcrun simctl launch booted ai.openclaw.ios'",
-    "lint": "oxlint --type-aware",
+    "lint": "biome check .",
     "lint:all": "pnpm lint && pnpm lint:swift",
     "lint:docs": "pnpm dlx markdownlint-cli2",
     "lint:docs:fix": "pnpm dlx markdownlint-cli2 --fix",
-    "lint:fix": "oxlint --type-aware --fix && pnpm format",
+    "lint:fix": "biome check --write .",
     "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
     "mac:open": "open dist/OpenClaw.app",
     "mac:package": "bash scripts/package-mac-app.sh",
@@ -188,8 +188,10 @@
     "rolldown": "1.0.0-rc.4",
     "tsdown": "^0.20.3",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "typescript": "^7.0.2",
+    "vitest": "^4.0.18",
+    "@biomejs/biome": "^2.3.12",
+    "@sylphx/biome-config": "^0.4.1"
   },
   "peerDependencies": {
     "@napi-rs/canvas": "^0.1.89",
