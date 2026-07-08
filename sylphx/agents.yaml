@@ -1,0 +1,261 @@
+defaults:
+  region: lhr
+  node_options: --max-old-space-size=4096 --dns-result-order=ipv4first
+  model:
+    primary: sylphx/auto
+    fallbacks:
+  providers:
+    zai:
+      baseUrl: https://open.bigmodel.cn/api/paas/v4
+      models:
+      - id: glm-5
+        name: GLM 5
+        api: openai-completions
+        reasoning: true
+        input:
+        - text
+        contextWindow: 202752
+        maxTokens: 16384
+      - id: glm-5-turbo
+        name: GLM 5 Turbo
+        api: openai-completions
+        reasoning: true
+        input:
+        - text
+        contextWindow: 202752
+        maxTokens: 16384
+    sylphx:
+      baseUrl: https://api.sylphx.ai/v1
+      timeoutSeconds: 600
+      models:
+      - id: auto
+        name: Sylphx Auto
+        api: openai-responses
+        reasoning: true
+        input:
+        - text
+        - image
+        contextWindow: 200000
+        maxTokens: 64000
+      - id: claude-sonnet-4-6
+        name: Claude Sonnet 4.6
+        api: openai-responses
+        reasoning: true
+        input:
+        - text
+        - image
+        contextWindow: 200000
+        maxTokens: 64000
+    anthropic:
+      baseUrl: https://api.sylphx.ai/v1
+      timeoutSeconds: 600
+      models:
+      - id: claude-sonnet-4-6
+        name: Claude Sonnet 4.6
+        api: openai-responses
+        reasoning: true
+        input:
+        - text
+        - image
+        contextWindow: 200000
+        maxTokens: 64000
+deploy:
+  domain: claw.sylphx.com
+  data_root: /data/volumes
+  compose_dir: /data/openclaw
+  docker_group: '988'
+regions:
+  lhr:
+    tz: Europe/London
+    lang: en_GB.UTF-8
+  ams:
+    tz: Europe/Amsterdam
+    lang: nl_NL.UTF-8
+  cdg:
+    tz: Europe/Paris
+    lang: fr_FR.UTF-8
+  fra:
+    tz: Europe/Berlin
+    lang: de_DE.UTF-8
+  nrt:
+    tz: Asia/Tokyo
+    lang: ja_JP.UTF-8
+  hkg:
+    tz: Asia/Hong_Kong
+    lang: zh_HK.UTF-8
+  sin:
+    tz: Asia/Singapore
+    lang: en_SG.UTF-8
+  syd:
+    tz: Australia/Sydney
+    lang: en_AU.UTF-8
+  iad:
+    tz: America/New_York
+    lang: en_US.UTF-8
+  ord:
+    tz: America/Chicago
+    lang: en_US.UTF-8
+  lax:
+    tz: America/Los_Angeles
+    lang: en_US.UTF-8
+  sea:
+    tz: America/Los_Angeles
+    lang: en_US.UTF-8
+  gru:
+    tz: America/Sao_Paulo
+    lang: pt_BR.UTF-8
+instances:
+  sylphx:
+    volume_id: vol_3q8xz9bw1nvm6xq8
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    channel:
+      telegram:
+        dmPolicy: pairing
+        groupPolicy: allowlist
+        allowFrom:
+        - '1951959493'  # Kyle Tse
+        groupAllowFrom:
+        - '*'
+        groups:
+          '-1003742174231': {}
+          '-1003527911563': {}
+          '-1003702628884': {}
+          '-1003714130782': {}
+          '-1003768722025': {}
+          '-1003836576307': {}
+          '-1003818679153': {}
+  stanley2:
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    channel:
+      telegram:
+        dmPolicy: pairing
+        allowFrom:
+        - '366337118'
+        - '1951959493'  # Kyle Tse
+  ozyrix:
+    volume_id: vol_b6jddml356b74xuv
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    channel:
+      telegram:
+        dmPolicy: pairing
+        groupPolicy: allowlist
+        allowFrom:
+        - '7943686432'  # Cheryl Lo
+        groupAllowFrom:
+        - '*'
+  wcloingod:
+    volume_id: vol_ig9q2j7en2p7nuab
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    channel:
+      telegram:
+        dmPolicy: pairing
+        groupPolicy: allowlist
+        allowFrom:
+        - '8596626161'  # Wing
+        groupAllowFrom:
+        - '*'
+  tsefamily:
+    volume_id: vol_qfn0rlrvcvedk1s7
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    channel:
+      telegram:
+        dmPolicy: pairing
+        groupPolicy: allowlist
+        allowFrom:
+        - '7943686432'  # Cheryl Lo (primary — 181 msgs)
+        - '1951959493'  # Kyle Tse (109 msgs)
+        groupAllowFrom:
+        - '*'
+        groups:
+          '-1003836576307': {}  # Tse family group
+  epiow:
+    volume_id: vol_nly1trvkngdqoj24
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    providers_file: server/openrouter-models.json
+    channel:
+      telegram:
+        dmPolicy: pairing
+        groupPolicy: allowlist
+        allowFrom:
+        - '366337118'
+        - '1951959493'  # Kyle Tse
+        groupAllowFrom:
+        - '*'
+        groups:
+          '-1003628183739': {}
+          '-1003719939240': {}
+          '-1003768722025': {}
+  epiow2:
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    providers_file: server/openrouter-models.json
+    channel:
+      telegram:
+        dmPolicy: pairing
+        allowFrom:
+        - '366337118'
+        - '1951959493'  # Kyle Tse
+  epiow3:
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    providers_file: server/openrouter-models.json
+    channel:
+      telegram:
+        dmPolicy: pairing
+        allowFrom:
+        - '366337118'
+        - '1951959493'  # Kyle Tse
+  epiow4:
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    providers_file: server/openrouter-models.json
+    channel:
+      telegram:
+        dmPolicy: pairing
+        allowFrom:
+        - '366337118'
+        - '1951959493'  # Kyle Tse
+  cubeage:
+    volume_id: vol_6a1ypjigyvgly1ar
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    channel:
+      telegram:
+        dmPolicy: pairing
+        groupPolicy: allowlist
+        allowFrom:
+        - '1951959493'  # Kyle Tse
+        groupAllowFrom:
+        - '*'
+        groups:
+          '-1003702628884': {}
+          '-1003824216999': {}
+  test:
+    volume_id: vol_xshxym09vimovawk
+    model:
+      primary: sylphx/auto
+      fallbacks:
+    channel:
+      telegram:
+        dmPolicy: pairing
+        groupPolicy: allowlist
+        allowFrom:
+        - '1951959493'  # Kyle Tse
+        groupAllowFrom:
+        - '*'

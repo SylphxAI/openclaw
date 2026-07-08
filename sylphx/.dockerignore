@@ -1,0 +1,9 @@
+.git/
+.github/
+instances/
+memory/
+*.md
+!workspace/*.md
+.DS_Store
+*.log
+node_modules/

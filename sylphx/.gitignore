@@ -1,0 +1,26 @@
+# Runtime / secrets
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+
+# Runtime data
+*.log
+*.pid
+*.sock
+
+# Session / editor metadata
+.mcp.json
+.playwright-mcp/
+memory/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Binaries / media (don't belong in repo)
+*.png
+*.jpg
+talosctl-*

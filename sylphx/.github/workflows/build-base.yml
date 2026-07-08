@@ -1,0 +1,136 @@
+# =============================================================================
+# OpenClaw Base Image Build — Build Once, Deploy Seven
+# =============================================================================
+# Builds the complete deployable image from Dockerfile.base and pushes to
+# the internal registry (registry.sylphx.com/library/openclaw-deploy-base).
+#
+# Tag strategy: {openclaw_version}-deps-{deps_version}
+#   openclaw_version: from .openclaw-version (e.g. v2026.3.23)
+#   deps_version:     from .openclaw-deps-version (e.g. v10)
+#   → registry.sylphx.com/library/openclaw-deploy-base:v2026.3.23-deps-v10
+#
+# Triggers:
+#   - Push to main touching Dockerfile.base, entrypoint.sh, config-lock.json,
+#     chromium, workspace, or version files
+#   - Manual dispatch (with optional version overrides)
+#
+# After build:
+#   - Emergency image is available for Platform DB override or manual recovery.
+#   - Normal deploys still go through Sylphx Platform CD on git push.
+# =============================================================================
+
+name: Build Base Image
+# NOTE: Push trigger intentionally removed — the Sylphx Platform handles all
+# builds on push via its own BuildKit mechanism (build-jobs namespace).
+# The Platform builds to registry.sylphx.com/sylphx/openclaw-openclaw:{sha}
+# and deploys via the reconciler. This workflow is kept as a manual override
+# for emergencies only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      openclaw_version:
+        description: "OpenClaw version (e.g. v2026.3.23) — leave empty to use .openclaw-version"
+        required: false
+        default: ""
+      deps_version:
+        description: "Deps version (e.g. v10) — leave empty to use .openclaw-deps-version"
+        required: false
+        default: ""
+      force:
+        description: "Force rebuild even if image already exists"
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-base
+  cancel-in-progress: false
+
+env:
+  REGISTRY: registry.sylphx.com
+  IMAGE_NAME: registry.sylphx.com/library/openclaw-deploy-base
+  K8S_NAMESPACE: openclaw
+
+jobs:
+  build:
+    name: Build and Push
+    runs-on: [self-hosted, sylphx-linux-xlarge]
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      tag: ${{ steps.versions.outputs.full_tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve versions
+        id: versions
+        run: |
+          OPENCLAW_VERSION="${{ github.event.inputs.openclaw_version }}"
+          if [ -z "$OPENCLAW_VERSION" ]; then
+            OPENCLAW_VERSION=$(cat .openclaw-version 2>/dev/null | tr -d '[:space:]' || echo "latest")
+          fi
+
+          DEPS_VERSION="${{ github.event.inputs.deps_version }}"
+          if [ -z "$DEPS_VERSION" ]; then
+            DEPS_VERSION=$(cat .openclaw-deps-version 2>/dev/null | tr -d '[:space:]' || echo "v1")
+          fi
+
+          FULL_TAG="${OPENCLAW_VERSION}-deps-${DEPS_VERSION}"
+          echo "openclaw_version=$OPENCLAW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "deps_version=$DEPS_VERSION"         >> "$GITHUB_OUTPUT"
+          echo "full_tag=$FULL_TAG"                 >> "$GITHUB_OUTPUT"
+          echo "image=${{ env.IMAGE_NAME }}:${FULL_TAG}" >> "$GITHUB_OUTPUT"
+          echo "OpenClaw: $OPENCLAW_VERSION  Deps: $DEPS_VERSION  Tag: $FULL_TAG"
+
+      - name: Set image outputs
+        id: meta
+        run: |
+          echo "image=${{ env.IMAGE_NAME }}:${{ steps.versions.outputs.full_tag }}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure registry credentials
+        # Write docker config.json directly — avoids shell $-expansion issues with
+        # robot account names like "robot$ci-push" (the $ would be shell-expanded).
+        # The REGISTRY_AUTH secret contains the base64-encoded "user:pass" string
+        # exactly as Docker stores it in config.json auths.
+        env:
+          REGISTRY_AUTH: ${{ secrets.REGISTRY_AUTH }}
+        run: |
+          mkdir -p ~/.docker
+          printf '{"auths":{"registry.sylphx.com":{"auth":"%s"}}}' "$REGISTRY_AUTH" \
+            > ~/.docker/config.json
+          echo "Registry credentials configured"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.base
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            OPENCLAW_VERSION=${{ steps.versions.outputs.openclaw_version }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.versions.outputs.full_tag }}
+            ${{ env.IMAGE_NAME }}:latest
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache,mode=max
+
+      - name: Summary
+        run: |
+          echo "## ✅ Base image built" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Image | \`${{ steps.meta.outputs.image }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| OpenClaw | \`${{ steps.versions.outputs.openclaw_version }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Deps | \`${{ steps.versions.outputs.deps_version }}\` |" >> "$GITHUB_STEP_SUMMARY"
+
+  # Deploy removed — Platform reconciler manages all K8s resources.
+  # After image push, update desired_image in Platform DB or rollout restart manually.
