@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "project": {
-    "repo": "SylphxAI/openclaw-deploy",
-    "name": "openclaw-deploy",
+    "repo": "SylphxAI/openclaw",
+    "name": "OpenClaw (Sylphx hosted)",
     "lifecycle": "production",
     "layer": "application",
     "summary": "Production customer application repository for deploying and operating multiple OpenClaw assistant instances on Sylphx with zero-knowledge platform boundaries.",
