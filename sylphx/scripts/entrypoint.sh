@@ -27,6 +27,10 @@ LEGACY_WORKSPACE=""
 CONFIG_TEMPLATE="/app/config/openclaw.json"
 CONFIG_LIVE="$DATA_DIR/openclaw.json"
 CONFIG_LOCK="/app/config-lock.json"
+# Optional PVC-persisted override survives pod restarts when the image lock lags.
+if [ -f "$DATA_DIR/config-lock.override.json" ]; then
+  CONFIG_LOCK="$DATA_DIR/config-lock.override.json"
+fi
 WORKSPACE_TEMPLATE="/app/workspace"
 NODE_UID=1000
 NODE_GID=1000
