@@ -89,12 +89,12 @@ def main():
             f.write(content)
         print(f"  Generated: {filename} ({len(content)} bytes)")
 
-    # Copy extra files from repo workspace that OpenClaw doesn't provide
-    # (e.g., MEMORY.md) — skip agents-base-section.md (build-only artifact)
+    # Copy extra files/dirs from repo workspace that OpenClaw doesn't provide
+    # (e.g., MEMORY.md, skills/*) — skip agents-base-section.md (build-only)
     if os.path.isdir(extra_dir):
-        skip_files = {'agents-base-section.md'}
+        skip_names = {'agents-base-section.md'}
         for filename in sorted(os.listdir(extra_dir)):
-            if filename in skip_files:
+            if filename in skip_names:
                 continue
             src_path = os.path.join(extra_dir, filename)
             dst_path = os.path.join(output_dir, filename)
@@ -104,6 +104,22 @@ def main():
                 with open(dst_path, 'w', encoding='utf-8') as f:
                     f.write(content)
                 print(f"  Extra: {filename} ({len(content)} bytes)")
+            elif os.path.isdir(src_path):
+                # Recurse for skill packs etc. (skills/memory-consolidate/SKILL.md)
+                for root, _dirs, files in os.walk(src_path):
+                    rel = os.path.relpath(root, extra_dir)
+                    out_root = os.path.join(output_dir, rel)
+                    os.makedirs(out_root, exist_ok=True)
+                    for fname in sorted(files):
+                        s = os.path.join(root, fname)
+                        d = os.path.join(out_root, fname)
+                        if os.path.exists(d):
+                            continue
+                        with open(s, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        with open(d, 'w', encoding='utf-8') as f:
+                            f.write(content)
+                        print(f"  Extra: {os.path.join(rel, fname)} ({len(content)} bytes)")
 
     print(f"Workspace templates generated in {output_dir} ({len(os.listdir(output_dir))} files)")
 

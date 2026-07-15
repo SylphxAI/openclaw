@@ -4,14 +4,14 @@
 # =============================================================================
 # Builds OpenClaw from source and adds all runtime dependencies.
 # Tag strategy: {OPENCLAW_VERSION}-deps-{DEPS_VERSION}
-# Example: v2026.6.9-deps-v13
+# Example: v2026.7.1-deps-v16
 #
 # Sylphx Platform normally builds this Dockerfile through the standard
 # BuildKit pipeline. The manual base-image workflow is retained as an
 # emergency override for publishing a prebuilt image with the same recipe.
 # =============================================================================
 
-ARG OPENCLAW_VERSION=v2026.6.9
+ARG OPENCLAW_VERSION=v2026.7.1
 
 # ---------------------------------------------------------------------------
 # Stage 1: Build OpenClaw from source
@@ -309,6 +309,12 @@ COPY scripts/capture-package-state.sh /usr/local/bin/capture-package-state
 RUN chmod +x /usr/local/bin/capture-package-state
 
 COPY scripts/materialize-auth-store.mjs /usr/local/lib/openclaw-materialize-auth-store.mjs
+
+# Memory consolidation helper (MEMORY.md scrub + archive + curated rewrite)
+COPY scripts/memory-consolidate.mjs /usr/local/lib/openclaw-memory-consolidate.mjs
+RUN printf '#!/bin/sh\nexec node /usr/local/lib/openclaw-memory-consolidate.mjs "$@"\n' \
+      > /usr/local/bin/openclaw-memory-consolidate \
+    && chmod +x /usr/local/bin/openclaw-memory-consolidate
 
 # CLI wrapper — makes `openclaw` available as a command for agents
 RUN printf '#!/bin/sh\nexec node /app/openclaw.mjs "$@"\n' > /usr/local/bin/openclaw \

@@ -223,7 +223,7 @@ Multi-stage build:
    `docs/reference/templates/`, strips YAML frontmatter, appends customer runtime BASE section
    to AGENTS.md, and copies extra files (MEMORY.md).
 
-Manual base-image overrides are tagged `{OPENCLAW_VERSION}-deps-{DEPS_VERSION}`. Current pinned release: `v2026.6.9`; current dependency generation: `v13`. Audited source patches under `patches/openclaw/`, if present, are applied immediately after cloning the upstream tag and before dependency installation.
+Manual base-image overrides are tagged `{OPENCLAW_VERSION}-deps-{DEPS_VERSION}`. Current pinned release: `v2026.7.1`; current dependency generation: `v16`. Audited source patches under `patches/openclaw/`, if present, are applied immediately after cloning the upstream tag and before dependency installation. Drop a patch only after the same fix lands in the pinned upstream tag (e.g. tsdown `OPENCLAW_TSDOWN_MAX_OLD_SPACE_MB` is upstream as of v2026.7.1).
 
 ### Workspace Template Architecture
 
