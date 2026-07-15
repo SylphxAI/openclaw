@@ -72,6 +72,17 @@
           {
             "api": "openai-completions",
             "contextWindow": 202752,
+            "id": "glm-5.1",
+            "input": [
+              "text"
+            ],
+            "maxTokens": 16384,
+            "name": "GLM 5.1",
+            "reasoning": true
+          },
+          {
+            "api": "openai-completions",
+            "contextWindow": 202752,
             "id": "glm-5.2",
             "input": [
               "text"
@@ -138,7 +149,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "minimax/MiniMax-M3",
+        "primary": "zai/glm-5.1",
         "fallbacks": []
       },
       "elevatedDefault": "full",

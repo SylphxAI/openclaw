@@ -20,6 +20,14 @@ defaults:
     zai:
       baseUrl: https://api.z.ai/api/coding/paas/v4
       models:
+      - id: glm-5.1
+        name: GLM 5.1
+        api: openai-completions
+        reasoning: true
+        input:
+        - text
+        contextWindow: 202752
+        maxTokens: 16384
       - id: glm-5.2
         name: GLM 5.2
         api: openai-completions
@@ -201,7 +209,7 @@ instances:
   epiow:
     volume_id: vol_nly1trvkngdqoj24
     model:
-      primary: minimax/MiniMax-M3
+      primary: zai/glm-5.1
       fallbacks:
     providers_file: server/openrouter-models.json
     channel:
@@ -219,7 +227,7 @@ instances:
           '-1003768722025': {}
   epiow2:
     model:
-      primary: minimax/MiniMax-M3
+      primary: zai/glm-5.1
       fallbacks:
     providers_file: server/openrouter-models.json
     channel:
@@ -230,7 +238,7 @@ instances:
         - '1951959493'  # Kyle Tse
   epiow3:
     model:
-      primary: minimax/MiniMax-M3
+      primary: zai/glm-5.1
       fallbacks:
     providers_file: server/openrouter-models.json
     channel:
@@ -241,7 +249,7 @@ instances:
         - '1951959493'  # Kyle Tse
   epiow4:
     model:
-      primary: minimax/MiniMax-M3
+      primary: zai/glm-5.1
       fallbacks:
     providers_file: server/openrouter-models.json
     channel:
