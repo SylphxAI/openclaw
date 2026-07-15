@@ -1,0 +1,79 @@
+diff --git a/src/agents/model-fallback.ts b/src/agents/model-fallback.ts
+index 90566b4c..88d26c9e 100644
+--- a/src/agents/model-fallback.ts
++++ b/src/agents/model-fallback.ts
+@@ -1258,6 +1258,16 @@ function resolveCooldownDecision(params: {
+     };
+   }
+ 
++  // Rate limits are transient quota signals, not hard outages. Keep probing on
++  // the throttle instead of suspending lanes for 30 minutes.
++  if (inferredReason === "rate_limit" || inferredReason === "overloaded") {
++    return {
++      type: "attempt",
++      reason: inferredReason,
++      markProbe: params.isPrimary && shouldProbe,
++    };
++  }
++
+   const shouldAttemptDespiteCooldown =
+     (params.isPrimary && (!params.requestedModel || shouldProbe)) ||
+     (!params.isPrimary && shouldUseTransientCooldownProbeSlot(inferredReason));
+@@ -1524,7 +1534,11 @@ async function runWithModelFallbackInternal<T>(
+               reason: decision.reason,
+               suspended: !hasRemainingCandidates,
+             });
+-            if (!hasRemainingCandidates) {
++            if (
++              !hasRemainingCandidates &&
++              decision.reason !== "rate_limit" &&
++              decision.reason !== "overloaded"
++            ) {
+               const laneId = resolveTerminalSuspensionLane();
+               deferredSuspension.pending = undefined;
+               void suspendSession({
+diff --git a/src/auto-reply/reply/agent-runner-execution.ts b/src/auto-reply/reply/agent-runner-execution.ts
+index 992fe0b2..2be67efa 100644
+--- a/src/auto-reply/reply/agent-runner-execution.ts
++++ b/src/auto-reply/reply/agent-runner-execution.ts
+@@ -1594,6 +1594,7 @@ export async function runAgentTurnWithFallback(params: {
+   onCompactionNoticePayload?: (payload: ReplyPayload) => Promise<void> | void;
+ }): Promise<AgentRunLoopResult> {
+   const TRANSIENT_HTTP_RETRY_DELAY_MS = 2_500;
++  const RATE_LIMIT_RETRY_DELAY_MS = 3_000;
+   let didLogHeartbeatStrip = false;
+   let autoCompactionCount = 0;
+   // Track payloads sent directly (not via pipeline) during tool flush to avoid duplicates.
+@@ -1785,6 +1786,8 @@ export async function runAgentTurnWithFallback(params: {
+   };
+   let transientHttpRetriesRemaining = 1;
+   const consumeTransientHttpRetry = () => transientHttpRetriesRemaining-- > 0;
++  let rateLimitRetriesRemaining = 2;
++  const consumeRateLimitRetry = () => rateLimitRetriesRemaining-- > 0;
+   let liveModelSwitchRetries = 0;
+   let bootstrapPromptWarningSignaturesSeen = resolveBootstrapWarningSignaturesSeen(
+     params.getActiveSessionEntry()?.systemPromptReport,
+@@ -3173,6 +3176,23 @@ export async function runAgentTurnWithFallback(params: {
+         continue;
+       }
+ 
++      const isRetryableRateLimit =
++        !isBilling &&
++        !isContextOverflow &&
++        (isFailoverError(err)
++          ? err.reason === "rate_limit" || err.reason === "overloaded"
++          : isRateLimitErrorMessage(message));
++      if (isRetryableRateLimit && consumeRateLimitRetry()) {
++        pendingLifecycleTerminal = undefined;
++        defaultRuntime.error(
++          `Rate limit before reply (${message}). Retrying in ${RATE_LIMIT_RETRY_DELAY_MS}ms.`,
++        );
++        await new Promise<void>((resolve) => {
++          setTimeout(resolve, RATE_LIMIT_RETRY_DELAY_MS);
++        });
++        continue;
++      }
++
+       defaultRuntime.error(`Embedded agent failed before reply: ${message}`);
+       // Only classify as rate-limit when we have concrete evidence from the
+       // underlying error. FallbackSummaryError messages embed per-attempt
