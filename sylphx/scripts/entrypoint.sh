@@ -990,7 +990,7 @@ fi
 if [ -f "$CONFIG_LOCK" ] && [ -f "$CONFIG_LIVE" ]; then
   log "[config-lock] Enforcing locked fields from $CONFIG_LOCK ..."
   CONFIG_LOCK_MERGED=$(mktemp "$DATA_DIR/openclaw.json.locked.XXXXXX")
-  CONFIG_LOCK_MERGED="$CONFIG_LOCK_MERGED" python3 - <<'PYEOF'
+  CONFIG_LOCK_PATH="$CONFIG_LOCK" CONFIG_LOCK_MERGED="$CONFIG_LOCK_MERGED" python3 - <<'PYEOF'
 import copy, json, os
 
 def apply_lock_patch(base, patch):
@@ -1009,7 +1009,7 @@ def apply_lock_patch(base, patch):
     return result
 
 live_path = "/data/openclaw.json"
-lock_path = "/app/config-lock.json"
+lock_path = os.environ["CONFIG_LOCK_PATH"]
 merged_path = os.environ["CONFIG_LOCK_MERGED"]
 
 with open(live_path) as f:

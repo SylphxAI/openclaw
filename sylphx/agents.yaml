@@ -258,6 +258,17 @@ instances:
         allowFrom:
         - '366337118'
         - '1951959493'  # Kyle Tse
+  epiow5:
+    model:
+      primary: zai/glm-5.1
+      fallbacks:
+    providers_file: server/openrouter-models.json
+    channel:
+      telegram:
+        dmPolicy: pairing
+        allowFrom:
+        - '366337118'
+        - '1951959493'  # Kyle Tse
   cubeage:
     volume_id: vol_6a1ypjigyvgly1ar
     model:

@@ -217,8 +217,8 @@
   "gateway": {
     "port": 3000,
     "reload": {
-      "mode": "off",
-      "debounceMs": 5000
+      "mode": "restart",
+      "debounceMs": 1000
     },
     "auth": {
       "mode": "token"
