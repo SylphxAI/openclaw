@@ -242,6 +242,51 @@ export function buildEmbeddedRunPayloads(params: {
     }
   }
 
+  // Fail closed: a completed model turn that produced zero user-visible text and
+  // no tool progress must not vanish into a silent channel dispatch. Surface an
+  // honest error so operators and users can see the non-deliverable turn.
+  // (Gateway empty translated streams / reasoning-only / dropped tool_calls.)
+  if (replyItems.length === 0 && params.lastAssistant) {
+    const stop = params.lastAssistant.stopReason;
+    const content = params.lastAssistant.content;
+    const hasToolCall =
+      Array.isArray(content) &&
+      content.some(
+        (block) =>
+          block && typeof block === "object" && (block as { type?: unknown }).type === "toolCall",
+      );
+    const emptyContent =
+      !content ||
+      (Array.isArray(content) && content.length === 0) ||
+      (Array.isArray(content) &&
+        content.every((block) => {
+          if (!block || typeof block !== "object") {
+            return true;
+          }
+          const b = block as { type?: string; text?: string };
+          if (b.type === "text") {
+            return !b.text?.trim();
+          }
+          if (b.type === "thinking") {
+            return true; // thinking alone is not deliverable to chat channels
+          }
+          return false;
+        }));
+    if (
+      !hasToolCall &&
+      emptyContent &&
+      (stop === "stop" || stop === "length" || stop === "error" || !stop)
+    ) {
+      replyItems.push({
+        text:
+          stop === "error"
+            ? genericErrorText
+            : "The model returned no reply text for this turn. Please try again.",
+        isError: true,
+      });
+    }
+  }
+
   const hasAudioAsVoiceTag = replyItems.some((item) => item.audioAsVoice);
   return replyItems
     .map((item) => ({

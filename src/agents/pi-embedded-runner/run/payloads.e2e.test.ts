@@ -296,4 +296,54 @@ describe("buildEmbeddedRunPayloads", () => {
     expect(payloads[0]?.isError).toBe(true);
     expect(payloads[0]?.text).toContain("connection timeout");
   });
+
+  it("surfaces an honest error when the model completes with empty content (no silent drop)", () => {
+    const lastAssistant = makeAssistant({
+      stopReason: "stop",
+      errorMessage: undefined,
+      content: [],
+    });
+    const payloads = buildEmbeddedRunPayloads({
+      assistantTexts: [],
+      toolMetas: [],
+      lastAssistant,
+      sessionKey: "session:telegram",
+      inlineToolResultsAllowed: false,
+      verboseLevel: "off",
+      reasoningLevel: "off",
+      toolResultFormat: "plain",
+    });
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.isError).toBe(true);
+    expect(payloads[0]?.text).toContain("no reply text");
+  });
+
+  it("surfaces an honest error when only thinking blocks exist (not channel-deliverable)", () => {
+    const lastAssistant = makeAssistant({
+      stopReason: "stop",
+      errorMessage: undefined,
+      content: [
+        {
+          type: "thinking",
+          thinking: "internal plan",
+          thinkingSignature: "sig",
+        },
+      ],
+    });
+    const payloads = buildEmbeddedRunPayloads({
+      assistantTexts: [],
+      toolMetas: [],
+      lastAssistant,
+      sessionKey: "session:telegram",
+      inlineToolResultsAllowed: false,
+      verboseLevel: "off",
+      reasoningLevel: "off",
+      toolResultFormat: "plain",
+    });
+
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]?.isError).toBe(true);
+    expect(payloads[0]?.text).toContain("no reply text");
+  });
 });
