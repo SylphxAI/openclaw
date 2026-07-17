@@ -18,6 +18,13 @@ context = "sylphx"
 name = "openclaw"
 type = "web"
 port = 3000
+# Rebuild when runtime entrypoint / guest DNS contract surfaces change.
+watch_paths = [
+  "sylphx/scripts/**",
+  "sylphx/Dockerfile.base",
+  "sylphx/package.json",
+  "sylphx.toml",
+]
 [services.health]
 mode = "http"
 path = "/healthz"
