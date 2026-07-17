@@ -15,7 +15,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # ghcr.io requires lowercase repository names
+  IMAGE_NAME: sylphxai/openclaw
 
 jobs:
   # Build amd64 image
