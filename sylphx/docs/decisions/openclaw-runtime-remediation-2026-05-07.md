@@ -20,6 +20,7 @@ Separately, Wcloingod routed `sylphx/auto` through the global Sylphx AI default 
 - `/workspace` is narrowed to `$HOME/.openclaw/workspace`; `$HOME` remains `/data/<instance>/home`.
 - Legacy broad-home workspace files are copied or linked into the narrow workspace on boot so existing customer-visible files do not disappear.
 - The entrypoint checks the `/data` mount and `$HOME` writability before launch and continuously while the gateway is alive. If the mount disappears, the gateway is stopped so Kubernetes replaces the pod instead of serving a Ready-but-broken instance.
+- The entrypoint also fail-closes on unusable guest OS DNS: empty `/etc/resolv.conf` or no `nameserver` line (the Kata/`kataShared` virtiofs class where kubelet DNS files never mount and libc returns `EAI_AGAIN` while `dig @10.96.0.10` still works). OpenClaw **does not** invent nameservers; Platform owns guest DNS file mounts. Opt-out for local non-Kata debug only: `OPENCLAW_REQUIRE_GUEST_DNS=false`.
 - `runtime.scratch` declares `/tmp` as `medium: "disk"` emptyDir to keep scratch state off the persistent PVC without moving large Chromium/Docker/package-manager temp files into the memory cgroup.
 - `config-lock` merges through a temporary file and does not promote known-good until the gateway has survived health checks.
 - Shared OpenClaw tenants lock `agents.defaults.model` to `sylphx/auto`. Per-tenant model overrides should be explicit customer choices, not schema drift between equivalent string/object encodings.

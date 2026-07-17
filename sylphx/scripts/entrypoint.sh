@@ -1176,8 +1176,39 @@ data_mount_ok() {
   [ "$mounted" = "true" ] && [ -d "$PERSISTENT_HOME" ] && [ -w "$PERSISTENT_HOME" ]
 }
 
+# ---------------------------------------------------------------------------
+# Guest DNS integrity (Kata virtiofs / kubelet resolv files)
+# ---------------------------------------------------------------------------
+# Platform/CRI must mount kubelet-managed /etc/resolv.conf, /etc/hosts, and
+# /etc/hostname into the Kata guest (visible as kataShared virtiofs). When
+# those mounts are missing, the guest can present empty 0-byte stubs: libc
+# getaddrinfo returns EAI_AGAIN for every hostname (api.sylphx.ai included)
+# while dig @10.96.0.10 still works.
+#
+# Product contract (consumer fail-closed — same class as /data watchdog):
+#   - Detect empty/missing OS resolver configuration.
+#   - Exit so Kubernetes replaces the pod.
+#   - Do NOT invent nameservers or rewrite resolv.conf (Platform owns mounts).
+# Opt-out only for local non-Kata debugging: OPENCLAW_REQUIRE_GUEST_DNS=false
+# ---------------------------------------------------------------------------
+guest_dns_ok() {
+  case "${OPENCLAW_REQUIRE_GUEST_DNS:-true}" in
+    false|0|no) return 0 ;;
+  esac
+
+  if [ ! -s /etc/resolv.conf ]; then
+    return 1
+  fi
+  # Require at least one nameserver line (kubelet ClusterFirst content).
+  if ! grep -qE '^[[:space:]]*nameserver[[:space:]]+[^[:space:]]+' /etc/resolv.conf 2>/dev/null; then
+    return 1
+  fi
+  return 0
+}
+
 data_runtime_state_ok() {
   data_mount_ok &&
+    guest_dns_ok &&
     [ -s "$CONFIG_LIVE" ] &&
     [ -d "$OPENCLAW_STATE_DIR" ] &&
     [ -d "$OPENCLAW_DIAGNOSTICS_DIR" ] &&
@@ -1189,12 +1220,22 @@ data_mount_watchdog() {
   while kill -0 "$gw_pid" 2>/dev/null; do
     sleep 10
     if ! data_runtime_state_ok; then
-      log "[data-watchdog] persistent runtime state became unavailable; restarting gateway"
+      if ! guest_dns_ok; then
+        log "[data-watchdog] guest DNS unusable (empty/missing nameserver in /etc/resolv.conf); restarting gateway so Kubernetes replaces the pod"
+      else
+        log "[data-watchdog] persistent runtime state became unavailable; restarting gateway"
+      fi
       kill "$gw_pid" 2>/dev/null || true
       return
     fi
   done
 }
+
+if ! guest_dns_ok; then
+  log "[guest-dns] /etc/resolv.conf is empty or has no nameserver — Kata/kubelet DNS mounts missing or broken"
+  log "[guest-dns] fail-closed: refusing to start (Platform owns guest DNS file mounts; OpenClaw will not invent nameservers)"
+  exit 1
+fi
 
 if ! data_runtime_state_ok; then
   log "[data-watchdog] persistent runtime state is unavailable before launch"
