@@ -148,11 +148,11 @@
 - **Legacy OAT proxy is retired for OpenClaw deploys**: do not point OpenClaw at `sylphx-oat-proxy-prod`, `oat-proxy.openclaw.svc.cluster.local`, or port `8787`.
 - **Credential plane**: OpenClaw auth profiles use per-instance Sylphx AI client keys (`ik-*`) for `sylphx:default`. These are not Sylphx Platform runtime SDK keys (`sk_*`).
 - **Config source of truth**: provider URL lives in `agents.yaml` and `scripts/config-lock.json` under `models.providers.sylphx.baseUrl`. Do not diagnose runtime provider routing from `ANTHROPIC_BASE_URL`; that env var is bootstrap compatibility only.
-- **Provider idle timeout**: managed OpenClaw instances set `models.providers.sylphx.timeoutSeconds: 600` and `models.providers.anthropic.timeoutSeconds: 600`. Without this provider-scoped timeout, OpenClaw's default cloud-provider idle watchdog can abort `sylphx/auto` after roughly 120 seconds with "The model did not produce a response before the model idle timeout" even when Telegram delivery and `/v1/models` are healthy.
+- **Provider idle timeout**: managed OpenClaw instances set `models.providers.sylphx.timeoutSeconds: 600` and `models.providers.anthropic.timeoutSeconds: 600`. Without this provider-scoped timeout, OpenClaw's default cloud-provider idle watchdog can abort `sylphx/executor` after roughly 120 seconds with "The model did not produce a response before the model idle timeout" even when Telegram delivery and `/v1/models` are healthy.
 
 ### Key Features
 
-- **Auto model routing**: `sylphx/auto` resolves to an available upstream model through Sylphx AI.
+- **Executor model routing**: `sylphx/executor` resolves to an available upstream model through Sylphx AI.
 - **Per-instance metering**: client key identity maps usage back to the OpenClaw instance, for example `epiow`.
 - **Provider failover**: upstream provider/token selection happens inside Sylphx AI, not inside OpenClaw deploy scripts.
 - **Per-client cascade invariant**: managed OpenClaw clients must have explicit Sylphx AI cascades. A null client cascade falls back to the global default, which can select provider-policy-blocked OpenRouter offerings and surface as no-response/model cooldown.
@@ -160,14 +160,14 @@
 
 ### Auth Flow
 
-1. OpenClaw gateway selects model `sylphx/auto`.
+1. OpenClaw gateway selects model `sylphx/executor`.
 2. Gateway reads token from `/data/<instance>/home/.openclaw/agents/main/agent/auth-profiles.json`, profile `sylphx:default`.
 3. Gateway calls `https://api.sylphx.ai/v1/responses` with the `ik-*` token.
 4. Sylphx AI maps the client key to an instance such as `epiow`, selects an upstream provider/token, and streams the response back.
 
 ### Provider Architecture
 
-- `sylphx/auto` — primary for managed OpenClaw agents, routes to Sylphx AI.
+- `sylphx/executor` — primary for managed OpenClaw agents, routes to Sylphx AI.
 - `sylphx/claude-sonnet-4-6` — explicit Sylphx AI route.
 - `anthropic/claude-sonnet-4-6` — compatibility alias that still routes to Sylphx AI in managed deploys.
 - `zai/glm-5` and `zai/glm-5-turbo` — direct provider entries kept available but not the default route.

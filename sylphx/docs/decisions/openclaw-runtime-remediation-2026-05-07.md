@@ -13,7 +13,7 @@ The Epiow OpenClaw instance showed intermittent "no response" behavior after the
 - `$HOME=/data/epiow/home` and `/workspace` pointed at the missing path, so OpenClaw failed to persist sessions with `ENOENT` and `EACCES`.
 - A restart restored the `/data` virtiofs mount and the existing auth profile, confirming the PVC was not deleted.
 
-Separately, Wcloingod routed `sylphx/auto` through the global Sylphx AI default cascade because its client row had no per-client cascade. The global first candidate was OpenRouter DeepSeek, which returned a provider policy `404` instead of producing an answer.
+Separately, Wcloingod routed `sylphx/executor` through the global Sylphx AI default cascade because its client row had no per-client cascade. The global first candidate was OpenRouter DeepSeek, which returned a provider policy `404` instead of producing an answer.
 
 ## Decision
 
@@ -23,7 +23,7 @@ Separately, Wcloingod routed `sylphx/auto` through the global Sylphx AI default 
 - The entrypoint also fail-closes on unusable guest OS DNS: empty `/etc/resolv.conf` or no `nameserver` line (the Kata/`kataShared` virtiofs class where kubelet DNS files never mount and libc returns `EAI_AGAIN` while `dig @10.96.0.10` still works). OpenClaw **does not** invent nameservers; Platform owns guest DNS file mounts. Opt-out for local non-Kata debug only: `OPENCLAW_REQUIRE_GUEST_DNS=false`.
 - `runtime.scratch` declares `/tmp` as `medium: "disk"` emptyDir to keep scratch state off the persistent PVC without moving large Chromium/Docker/package-manager temp files into the memory cgroup.
 - `config-lock` merges through a temporary file and does not promote known-good until the gateway has survived health checks.
-- Shared OpenClaw tenants lock `agents.defaults.model` to `sylphx/auto`. Per-tenant model overrides should be explicit customer choices, not schema drift between equivalent string/object encodings.
+- Shared OpenClaw tenants lock `agents.defaults.model` to `sylphx/executor`. Per-tenant model overrides should be explicit customer choices, not schema drift between equivalent string/object encodings.
 - Managed Sylphx AI keys use `SYLPHX_AI_API_KEY`; `ANTHROPIC_API_KEY` is only a compatibility alias for non-Anthropic-shaped keys.
 - Per-client Sylphx AI cascades must be explicit for managed OpenClaw tenants. Do not rely on the global default for customer agents.
 - Do not carry tenant-specific `tools.deny` entries for document formats such as `pdf` unless the customer asked for that restriction. Document analysis is part of the expected RFI/RFP workflow.
@@ -53,7 +53,7 @@ On 2026-05-07, Epiow was restarted after the broken `/data` mount was observed. 
 - `/data` and `/tmp` were both mounted as virtiofs in the Kata VM.
 - `/data/epiow/home` existed and was writable.
 - `sylphx:default` auth profile existed.
-- `openclaw infer model run --local --model sylphx/auto --prompt "Say pong only." --json` returned `pong`.
+- `openclaw infer model run --local --model sylphx/executor --prompt "Say pong only." --json` returned `pong`.
 - Node and dockerd FD counts returned to low steady-state values.
 
 Wcloingod, Cubeage, and Ozyrix Sylphx AI client cascades were pinned to direct managed providers with `z-ai/glm-5.1` first. Wcloingod then routed to `z-ai/glm-5.1` and returned `200`.

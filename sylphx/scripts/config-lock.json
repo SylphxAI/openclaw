@@ -26,13 +26,13 @@
           {
             "api": "openai-responses",
             "contextWindow": 200000,
-            "id": "auto",
+            "id": "executor",
             "input": [
               "text",
               "image"
             ],
             "maxTokens": 64000,
-            "name": "Sylphx Auto",
+            "name": "Sylphx Executor",
             "reasoning": true
           },
           {

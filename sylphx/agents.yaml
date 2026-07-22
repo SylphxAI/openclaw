@@ -56,8 +56,8 @@ defaults:
       baseUrl: https://api.sylphx.ai/v1
       timeoutSeconds: 600
       models:
-      - id: auto
-        name: Sylphx Auto
+      - id: executor
+        name: Sylphx Executor
         api: openai-responses
         reasoning: true
         input:
@@ -136,7 +136,7 @@ instances:
   sylphx:
     volume_id: vol_3q8xz9bw1nvm6xq8
     model:
-      primary: sylphx/auto
+      primary: sylphx/executor
       fallbacks:
     channel:
       telegram:
@@ -156,7 +156,7 @@ instances:
           '-1003818679153': {}
   stanley2:
     model:
-      primary: sylphx/auto
+      primary: sylphx/executor
       fallbacks:
     channel:
       telegram:
@@ -167,7 +167,7 @@ instances:
   ozyrix:
     volume_id: vol_b6jddml356b74xuv
     model:
-      primary: sylphx/auto
+      primary: sylphx/executor
       fallbacks:
     channel:
       telegram:
@@ -180,7 +180,7 @@ instances:
   wcloingod:
     volume_id: vol_ig9q2j7en2p7nuab
     model:
-      primary: sylphx/auto
+      primary: sylphx/executor
       fallbacks:
     channel:
       telegram:
@@ -193,7 +193,7 @@ instances:
   tsefamily:
     volume_id: vol_qfn0rlrvcvedk1s7
     model:
-      primary: sylphx/auto
+      primary: sylphx/executor
       fallbacks:
     channel:
       telegram:
@@ -272,7 +272,7 @@ instances:
   cubeage:
     volume_id: vol_6a1ypjigyvgly1ar
     model:
-      primary: sylphx/auto
+      primary: sylphx/executor
       fallbacks:
     channel:
       telegram:
@@ -288,7 +288,7 @@ instances:
   test:
     volume_id: vol_xshxym09vimovawk
     model:
-      primary: sylphx/auto
+      primary: sylphx/executor
       fallbacks:
     channel:
       telegram:

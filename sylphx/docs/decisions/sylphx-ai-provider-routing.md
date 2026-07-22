@@ -10,7 +10,7 @@ Epiow VMPS appeared silent in Telegram while the pod was healthy. The VMPS sessi
 
 The failing path was model routing:
 
-- OpenClaw runtime model: `sylphx/auto`.
+- OpenClaw runtime model: `sylphx/executor` (Auto product retired; ADR-1226 on sylphx-ai).
 - Runtime auth profile: `sylphx:default`, provider `sylphx`, token shape `ik-*`.
 - Provider URL in locked config: `https://api.sylphx.ai/v1`.
 - `api.sylphx.ai` was missing from the `sylphx-ai-prod/web` HTTPRoute, so requests returned Cloudflare `404` with an empty body.
@@ -42,7 +42,7 @@ Do not configure OpenClaw to use:
 
 `ANTHROPIC_BASE_URL` may exist for bootstrap compatibility, but runtime provider routing is owned by `models.providers.sylphx.baseUrl` in `agents.yaml` and `scripts/config-lock.json`.
 
-Managed OpenClaw instances also pin `models.providers.sylphx.timeoutSeconds: 600` and `models.providers.anthropic.timeoutSeconds: 600`. This timeout is provider-scoped, not an agent runtime timeout. OpenClaw uses it for provider HTTP requests and the model stream idle watchdog; without it, long-running `sylphx/auto` calls can surface a model idle timeout after the default roughly 120-second window even though Telegram and the Sylphx AI `/v1/models` endpoint are healthy.
+Managed OpenClaw instances also pin `models.providers.sylphx.timeoutSeconds: 600` and `models.providers.anthropic.timeoutSeconds: 600`. This timeout is provider-scoped, not an agent runtime timeout. OpenClaw uses it for provider HTTP requests and the model stream idle watchdog; without it, long-running `sylphx/executor` calls can surface a model idle timeout after the default roughly 120-second window even though Telegram and the Sylphx AI `/v1/models` endpoint are healthy.
 
 Managed Sylphx AI provider entries use OpenAI Responses transport
 (`api: openai-responses`) against `https://api.sylphx.ai/v1/responses`.
