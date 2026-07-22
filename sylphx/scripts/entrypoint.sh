@@ -977,6 +977,73 @@ fi
 # ---------------------------------------------------------------------------
 # 13a. Config lock — enforce immutable fields from image on every boot
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# 12b. ADR-1226 — retire Sylphx Auto product pins to Executor
+# ---------------------------------------------------------------------------
+# Managed PVC configs and optional /data/config-lock.override.json historically
+# pinned agents.defaults.model to sylphx/auto. Auto is retired on Sylphx AI
+# Gateway; rewrite only model product pins (never commands.native enums).
+# ---------------------------------------------------------------------------
+if [ -f "$CONFIG_LIVE" ] || [ -f "$DATA_DIR/config-lock.override.json" ]; then
+  log "[auto-retire] Migrating sylphx/auto model pins to sylphx/executor ..."
+  DATA_DIR="$DATA_DIR" python3 - <<'PYEOF'
+import json
+import os
+from pathlib import Path
+
+data_dir = Path(os.environ["DATA_DIR"])
+
+
+def migrate_model_fields(data: dict) -> bool:
+    changed = False
+    agents = data.setdefault("agents", {}).setdefault("defaults", {})
+    model = agents.get("model")
+    if model in ("auto", "sylphx/auto"):
+        agents["model"] = {"primary": "sylphx/executor", "fallbacks": []}
+        changed = True
+    elif isinstance(model, dict):
+        if model.get("primary") in ("auto", "sylphx/auto"):
+            model["primary"] = "sylphx/executor"
+            changed = True
+        fb = model.get("fallbacks") or []
+        nfb = [
+            "sylphx/executor" if x in ("auto", "sylphx/auto") else x
+            for x in fb
+        ]
+        if nfb != list(fb):
+            model["fallbacks"] = nfb
+            changed = True
+    models_map = agents.get("models")
+    if isinstance(models_map, dict) and "sylphx/auto" in models_map:
+        models_map.setdefault("sylphx/executor", models_map.pop("sylphx/auto"))
+        changed = True
+    for m in (
+        ((data.get("models") or {}).get("providers") or {})
+        .get("sylphx", {})
+        .get("models")
+        or []
+    ):
+        if isinstance(m, dict) and m.get("id") == "auto":
+            m["id"] = "executor"
+            if m.get("name") in (None, "Auto", "Sylphx Auto"):
+                m["name"] = "Sylphx Executor"
+            changed = True
+    return changed
+
+
+for rel in ("openclaw.json", "config-lock.override.json"):
+    path = data_dir / rel
+    if not path.exists():
+        continue
+    data = json.loads(path.read_text())
+    if migrate_model_fields(data):
+        path.write_text(json.dumps(data, indent=2) + "\n")
+        print(f"[auto-retire] migrated {path}")
+    else:
+        print(f"[auto-retire] clean {path}")
+PYEOF
+fi
+
 # Certain fields (model providers, elevated tools, exec security) are company-
 # controlled and must never be modified by agents. On every boot we apply
 # /app/config-lock.json as a JSON merge-patch-style overlay on top of the live
