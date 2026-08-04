@@ -127,7 +127,7 @@ jobs:
   build-artifacts:
     needs: [docs-scope, changed-scope, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: sylphx-linux-large
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -153,7 +153,7 @@ jobs:
   release-check:
     needs: [docs-scope, build-artifacts]
     if: github.event_name == 'push' && needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: sylphx-linux-large
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -177,7 +177,7 @@ jobs:
   checks:
     needs: [docs-scope, changed-scope, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: sylphx-linux-large
     strategy:
       fail-fast: false
       matrix:
@@ -227,7 +227,7 @@ jobs:
     name: "check"
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_only != 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: sylphx-linux-large
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -244,7 +244,7 @@ jobs:
   check-docs:
     needs: [docs-scope]
     if: needs.docs-scope.outputs.docs_changed == 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: sylphx-linux-large
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -258,7 +258,7 @@ jobs:
         run: pnpm check:docs
 
   secrets:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: sylphx-linux-large
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -285,7 +285,7 @@ jobs:
   checks-windows:
     needs: [docs-scope, changed-scope, build-artifacts, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
-    runs-on: blacksmith-4vcpu-windows-2025
+    runs-on: [self-hosted, sylphx, windows, standard]
     env:
       NODE_OPTIONS: --max-old-space-size=4096
       # Keep total concurrency predictable on the 4 vCPU runner:
@@ -412,7 +412,7 @@ jobs:
   macos:
     needs: [docs-scope, changed-scope, check]
     if: github.event_name == 'pull_request' && needs.docs-scope.outputs.docs_only != 'true' && needs.changed-scope.outputs.run_macos == 'true'
-    runs-on: macos-latest
+    runs-on: [self-hosted, sylphx, macos, standard]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -484,7 +484,7 @@ jobs:
 
   ios:
     if: false # ignore iOS in CI for now
-    runs-on: macos-latest
+    runs-on: [self-hosted, sylphx, macos, standard]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -645,7 +645,7 @@ jobs:
   android:
     needs: [docs-scope, changed-scope, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_android == 'true')
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: sylphx-linux-large
     strategy:
       fail-fast: false
       matrix:
