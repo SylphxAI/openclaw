@@ -21,7 +21,7 @@ env:
 jobs:
   # Build amd64 image
   build-amd64:
-    runs-on: [self-hosted, sylphx, linux, standard]
+    runs-on: sylphx-linux-standard
     permissions:
       packages: write
       contents: read
@@ -122,7 +122,7 @@ jobs:
 
   # Create multi-platform manifest
   create-manifest:
-    runs-on: [self-hosted, sylphx, linux, standard]
+    runs-on: sylphx-linux-standard
     permissions:
       packages: write
       contents: read
