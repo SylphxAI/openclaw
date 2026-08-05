@@ -1,31 +1,16 @@
 {
   "models": {
     "providers": {
-      "anthropic": {
-        "baseUrl": "https://api.sylphx.ai/v1",
-        "timeoutSeconds": 600,
-        "models": [
-          {
-            "api": "openai-responses",
-            "contextWindow": 200000,
-            "id": "claude-sonnet-4-6",
-            "input": [
-              "text",
-              "image"
-            ],
-            "maxTokens": 64000,
-            "name": "Claude Sonnet 4.6",
-            "reasoning": true
-          }
-        ]
-      },
+      "anthropic": null,
+      "minimax": null,
+      "zai": null,
       "sylphx": {
         "baseUrl": "https://api.sylphx.ai/v1",
         "timeoutSeconds": 600,
         "models": [
           {
             "api": "openai-responses",
-            "contextWindow": 200000,
+            "contextWindow": 500000,
             "id": "executor",
             "input": [
               "text",
@@ -33,84 +18,6 @@
             ],
             "maxTokens": 64000,
             "name": "Sylphx Executor",
-            "reasoning": true
-          },
-          {
-            "api": "openai-responses",
-            "contextWindow": 200000,
-            "id": "claude-sonnet-4-6",
-            "input": [
-              "text",
-              "image"
-            ],
-            "maxTokens": 64000,
-            "name": "Claude Sonnet 4.6",
-            "reasoning": true
-          }
-        ]
-      },
-      "minimax": {
-        "baseUrl": "https://api.minimax.io/anthropic",
-        "apiKey": "${MINIMAX_API_KEY}",
-        "api": "anthropic-messages",
-        "models": [
-          {
-            "id": "MiniMax-M3",
-            "name": "MiniMax M3",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "contextWindow": 1000000,
-            "maxTokens": 8192
-          }
-        ]
-      },
-      "zai": {
-        "baseUrl": "https://api.z.ai/api/coding/paas/v4",
-        "models": [
-          {
-            "api": "openai-completions",
-            "contextWindow": 202752,
-            "id": "glm-5.1",
-            "input": [
-              "text"
-            ],
-            "maxTokens": 16384,
-            "name": "GLM 5.1",
-            "reasoning": true
-          },
-          {
-            "api": "openai-completions",
-            "contextWindow": 202752,
-            "id": "glm-5.2",
-            "input": [
-              "text"
-            ],
-            "maxTokens": 16384,
-            "name": "GLM 5.2",
-            "reasoning": true
-          },
-          {
-            "api": "openai-completions",
-            "contextWindow": 202752,
-            "id": "glm-5",
-            "input": [
-              "text"
-            ],
-            "maxTokens": 16384,
-            "name": "GLM 5",
-            "reasoning": true
-          },
-          {
-            "api": "openai-completions",
-            "contextWindow": 202752,
-            "id": "glm-5-turbo",
-            "input": [
-              "text"
-            ],
-            "maxTokens": 16384,
-            "name": "GLM 5 Turbo",
             "reasoning": true
           }
         ]
@@ -149,7 +56,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "zai/glm-5.1",
+        "primary": "sylphx/executor",
         "fallbacks": []
       },
       "elevatedDefault": "full",

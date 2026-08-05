@@ -19,7 +19,7 @@ Customer app repo for deploying and managing multiple [OpenClaw](https://github.
                    ├────────────────────────────────────┤
                    │  env-* namespaces                    │
                    │  ┌───────┬───────┬───────┬───────┐ │
-                   │  │sylphx │ozyrix│wclo…  │tse…   │ │
+                   │  │epiow  │epiow2│epiow3 │epiow4 │ │
                    │  │openclaw service template per env│ │
                    │  └───────┴───────┴───────┴───────┘ │
                    │  Ceph RBD PVCs (persistent data)    │
@@ -67,18 +67,13 @@ Runtime decisions for this customer app are recorded under [`docs/decisions/`](d
 
 ## Current Instances
 
-| Instance | Subdomain | Owner |
-|---|---|---|
-| `sylphx` | sylphx.claw.sylphx.com | Main instance |
-| `stanley2` | Stanley2 Sylphx environment | Stanley2 |
-| `ozyrix` | ozyrix.claw.sylphx.com | Cheryl |
-| `wcloingod` | wcloingod.claw.sylphx.com | Wcloingod |
-| `tsefamily` | tsefamily.claw.sylphx.com | Tse Family |
-| `epiow` | epiow.claw.sylphx.com | Epiow |
-| `epiow2` | Epiow2 Sylphx environment | Epiow |
-| `epiow3` | Epiow3 Sylphx environment | Epiow |
-| `epiow4` | Epiow4 Sylphx environment | Epiow |
-| `cubeage` | cubeage.claw.sylphx.com | Cubeage |
+| Instance | Subdomain | Owner | Model |
+|---|---|---|---|
+| `epiow` | epiow.claw.sylphx.com | Epiow | `sylphx/executor` |
+| `epiow2` | Epiow2 Sylphx environment | Epiow | `sylphx/executor` |
+| `epiow3` | Epiow3 Sylphx environment | Epiow | `sylphx/executor` |
+| `epiow4` | Epiow4 Sylphx environment | Epiow | `sylphx/executor` |
+| `epiow5` | Epiow5 Sylphx environment | Epiow | `sylphx/executor` |
 
 ## Adding a New Instance
 
@@ -133,15 +128,11 @@ deploy:
   domain: claw.sylphx.com
 
 instances:
-  sylphx:
-  ozyrix:
-  wcloingod:
-  tsefamily:
   epiow:
   epiow2:
   epiow3:
   epiow4:
-  cubeage:
+  epiow5:
 ```
 
 Each instance inherits defaults. Override per-instance only when different.
