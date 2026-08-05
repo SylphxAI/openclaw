@@ -2,56 +2,9 @@ defaults:
   region: lhr
   node_options: --max-old-space-size=4096 --dns-result-order=ipv4first
   model:
-    primary: minimax/MiniMax-M3
+    primary: sylphx/executor
     fallbacks:
   providers:
-    minimax:
-      baseUrl: https://api.minimax.io/anthropic
-      apiKey: ${MINIMAX_API_KEY}
-      api: anthropic-messages
-      models:
-      - id: MiniMax-M3
-        name: MiniMax M3
-        reasoning: false
-        input:
-        - text
-        contextWindow: 1000000
-        maxTokens: 8192
-    zai:
-      baseUrl: https://api.z.ai/api/coding/paas/v4
-      models:
-      - id: glm-5.1
-        name: GLM 5.1
-        api: openai-completions
-        reasoning: true
-        input:
-        - text
-        contextWindow: 202752
-        maxTokens: 16384
-      - id: glm-5.2
-        name: GLM 5.2
-        api: openai-completions
-        reasoning: true
-        input:
-        - text
-        contextWindow: 202752
-        maxTokens: 16384
-      - id: glm-5
-        name: GLM 5
-        api: openai-completions
-        reasoning: true
-        input:
-        - text
-        contextWindow: 202752
-        maxTokens: 16384
-      - id: glm-5-turbo
-        name: GLM 5 Turbo
-        api: openai-completions
-        reasoning: true
-        input:
-        - text
-        contextWindow: 202752
-        maxTokens: 16384
     sylphx:
       baseUrl: https://api.sylphx.ai/v1
       timeoutSeconds: 600
@@ -63,29 +16,7 @@ defaults:
         input:
         - text
         - image
-        contextWindow: 200000
-        maxTokens: 64000
-      - id: claude-sonnet-4-6
-        name: Claude Sonnet 4.6
-        api: openai-responses
-        reasoning: true
-        input:
-        - text
-        - image
-        contextWindow: 200000
-        maxTokens: 64000
-    anthropic:
-      baseUrl: https://api.sylphx.ai/v1
-      timeoutSeconds: 600
-      models:
-      - id: claude-sonnet-4-6
-        name: Claude Sonnet 4.6
-        api: openai-responses
-        reasoning: true
-        input:
-        - text
-        - image
-        contextWindow: 200000
+        contextWindow: 500000
         maxTokens: 64000
 deploy:
   domain: claw.sylphx.com
@@ -133,85 +64,11 @@ regions:
     tz: America/Sao_Paulo
     lang: pt_BR.UTF-8
 instances:
-  sylphx:
-    volume_id: vol_3q8xz9bw1nvm6xq8
-    model:
-      primary: sylphx/executor
-      fallbacks:
-    channel:
-      telegram:
-        dmPolicy: pairing
-        groupPolicy: allowlist
-        allowFrom:
-        - '1951959493'  # Kyle Tse
-        groupAllowFrom:
-        - '*'
-        groups:
-          '-1003742174231': {}
-          '-1003527911563': {}
-          '-1003702628884': {}
-          '-1003714130782': {}
-          '-1003768722025': {}
-          '-1003836576307': {}
-          '-1003818679153': {}
-  stanley2:
-    model:
-      primary: sylphx/executor
-      fallbacks:
-    channel:
-      telegram:
-        dmPolicy: pairing
-        allowFrom:
-        - '366337118'
-        - '1951959493'  # Kyle Tse
-  ozyrix:
-    volume_id: vol_b6jddml356b74xuv
-    model:
-      primary: sylphx/executor
-      fallbacks:
-    channel:
-      telegram:
-        dmPolicy: pairing
-        groupPolicy: allowlist
-        allowFrom:
-        - '7943686432'  # Cheryl Lo
-        groupAllowFrom:
-        - '*'
-  wcloingod:
-    volume_id: vol_ig9q2j7en2p7nuab
-    model:
-      primary: sylphx/executor
-      fallbacks:
-    channel:
-      telegram:
-        dmPolicy: pairing
-        groupPolicy: allowlist
-        allowFrom:
-        - '8596626161'  # Wing
-        groupAllowFrom:
-        - '*'
-  tsefamily:
-    volume_id: vol_qfn0rlrvcvedk1s7
-    model:
-      primary: sylphx/executor
-      fallbacks:
-    channel:
-      telegram:
-        dmPolicy: pairing
-        groupPolicy: allowlist
-        allowFrom:
-        - '7943686432'  # Cheryl Lo (primary — 181 msgs)
-        - '1951959493'  # Kyle Tse (109 msgs)
-        groupAllowFrom:
-        - '*'
-        groups:
-          '-1003836576307': {}  # Tse family group
   epiow:
     volume_id: vol_nly1trvkngdqoj24
     model:
-      primary: zai/glm-5.1
+      primary: sylphx/executor
       fallbacks:
-    providers_file: server/openrouter-models.json
     channel:
       telegram:
         dmPolicy: pairing
@@ -227,9 +84,8 @@ instances:
           '-1003768722025': {}
   epiow2:
     model:
-      primary: zai/glm-5.1
+      primary: sylphx/executor
       fallbacks:
-    providers_file: server/openrouter-models.json
     channel:
       telegram:
         dmPolicy: pairing
@@ -238,9 +94,8 @@ instances:
         - '1951959493'  # Kyle Tse
   epiow3:
     model:
-      primary: zai/glm-5.1
+      primary: sylphx/executor
       fallbacks:
-    providers_file: server/openrouter-models.json
     channel:
       telegram:
         dmPolicy: pairing
@@ -249,9 +104,8 @@ instances:
         - '1951959493'  # Kyle Tse
   epiow4:
     model:
-      primary: zai/glm-5.1
+      primary: sylphx/executor
       fallbacks:
-    providers_file: server/openrouter-models.json
     channel:
       telegram:
         dmPolicy: pairing
@@ -260,41 +114,11 @@ instances:
         - '1951959493'  # Kyle Tse
   epiow5:
     model:
-      primary: zai/glm-5.1
+      primary: sylphx/executor
       fallbacks:
-    providers_file: server/openrouter-models.json
     channel:
       telegram:
         dmPolicy: pairing
         allowFrom:
         - '366337118'
         - '1951959493'  # Kyle Tse
-  cubeage:
-    volume_id: vol_6a1ypjigyvgly1ar
-    model:
-      primary: sylphx/executor
-      fallbacks:
-    channel:
-      telegram:
-        dmPolicy: pairing
-        groupPolicy: allowlist
-        allowFrom:
-        - '1951959493'  # Kyle Tse
-        groupAllowFrom:
-        - '*'
-        groups:
-          '-1003702628884': {}
-          '-1003824216999': {}
-  test:
-    volume_id: vol_xshxym09vimovawk
-    model:
-      primary: sylphx/executor
-      fallbacks:
-    channel:
-      telegram:
-        dmPolicy: pairing
-        groupPolicy: allowlist
-        allowFrom:
-        - '1951959493'  # Kyle Tse
-        groupAllowFrom:
-        - '*'
