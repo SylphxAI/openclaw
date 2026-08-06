@@ -33,7 +33,9 @@ const dryRun = Boolean(flag("--dry-run", false));
 const scrubOnly = Boolean(flag("--scrub-only", false));
 
 if (!workspace || typeof workspace !== "string") {
-  console.error("usage: memory-consolidate.mjs --workspace <dir> [--budget 16000] [--dry-run] [--scrub-only]");
+  console.error(
+    "usage: memory-consolidate.mjs --workspace <dir> [--budget 16000] [--dry-run] [--scrub-only]",
+  );
   process.exit(2);
 }
 
@@ -248,7 +250,9 @@ for (const sec of scored) {
 }
 
 // Restore original heading order among kept sections
-kept.sort((a, b) => sections.indexOf(a) - sections.indexOf(b) || scored.indexOf(a) - scored.indexOf(b));
+kept.sort(
+  (a, b) => sections.indexOf(a) - sections.indexOf(b) || scored.indexOf(a) - scored.indexOf(b),
+);
 // Fix sort: use original order by matching title+first line identity
 const order = new Map(sections.map((s, i) => [s, i]));
 kept.sort((a, b) => (order.get(a) ?? 0) - (order.get(b) ?? 0));

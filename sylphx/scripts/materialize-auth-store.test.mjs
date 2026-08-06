@@ -4,11 +4,11 @@
  * Drives the real exported resolvers — no hard-coded hash expected value.
  */
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { spawnSync } from "node:child_process";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const scriptPath = path.join(here, "materialize-auth-store.mjs");
@@ -39,7 +39,10 @@ withTempDist(
     const resolved = resolveAuthStoreModulePath({ distDir });
     assert.equal(path.basename(resolved), "auth-profiles-AbCdEf12.js");
     const listed = listAuthStoreModuleCandidates(distDir);
-    assert.deepEqual(listed.map((p) => path.basename(p)), ["auth-profiles-AbCdEf12.js"]);
+    assert.deepEqual(
+      listed.map((p) => path.basename(p)),
+      ["auth-profiles-AbCdEf12.js"],
+    );
   },
 );
 
@@ -59,10 +62,7 @@ withTempDist(
 // 3) Missing dist fails closed with clear error
 {
   const missing = path.join(os.tmpdir(), `no-such-dist-${Date.now()}`);
-  assert.throws(
-    () => resolveAuthStoreModulePath({ distDir: missing }),
-    /dist directory not found/,
-  );
+  assert.throws(() => resolveAuthStoreModulePath({ distDir: missing }), /dist directory not found/);
 }
 
 // 4) CLI --resolve-only drives real entrypoint against temp dist with export
@@ -133,15 +133,7 @@ export function saveAuthProfileStore(store, agentDir) {
     try {
       const result = spawnSync(
         process.execPath,
-        [
-          scriptPath,
-          "--dist-dir",
-          distDir,
-          "--agent-dir",
-          agentDir,
-          "--auth-profile",
-          authPath,
-        ],
+        [scriptPath, "--dist-dir", distDir, "--agent-dir", agentDir, "--auth-profile", authPath],
         { encoding: "utf8" },
       );
       assert.equal(result.status, 0, result.stderr || result.stdout);

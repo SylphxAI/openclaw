@@ -9,20 +9,20 @@ defaults:
       baseUrl: https://api.sylphx.ai/v1
       timeoutSeconds: 600
       models:
-      - id: executor
-        name: Sylphx Executor
-        api: openai-responses
-        reasoning: true
-        input:
-        - text
-        - image
-        contextWindow: 500000
-        maxTokens: 64000
+        - id: executor
+          name: Sylphx Executor
+          api: openai-responses
+          reasoning: true
+          input:
+            - text
+            - image
+          contextWindow: 500000
+          maxTokens: 64000
 deploy:
   domain: claw.sylphx.com
   data_root: /data/volumes
   compose_dir: /data/openclaw
-  docker_group: '988'
+  docker_group: "988"
 regions:
   lhr:
     tz: Europe/London
@@ -74,14 +74,14 @@ instances:
         dmPolicy: pairing
         groupPolicy: allowlist
         allowFrom:
-        - '366337118'
-        - '1951959493'  # Kyle Tse
+          - "366337118"
+          - "1951959493" # Kyle Tse
         groupAllowFrom:
-        - '*'
+          - "*"
         groups:
-          '-1003628183739': {}
-          '-1003719939240': {}
-          '-1003768722025': {}
+          "-1003628183739": {}
+          "-1003719939240": {}
+          "-1003768722025": {}
   epiow2:
     model:
       primary: sylphx/executor
@@ -90,8 +90,8 @@ instances:
       telegram:
         dmPolicy: pairing
         allowFrom:
-        - '366337118'
-        - '1951959493'  # Kyle Tse
+          - "366337118"
+          - "1951959493" # Kyle Tse
   epiow3:
     model:
       primary: sylphx/executor
@@ -100,8 +100,8 @@ instances:
       telegram:
         dmPolicy: pairing
         allowFrom:
-        - '366337118'
-        - '1951959493'  # Kyle Tse
+          - "366337118"
+          - "1951959493" # Kyle Tse
   epiow4:
     model:
       primary: sylphx/executor
@@ -110,8 +110,8 @@ instances:
       telegram:
         dmPolicy: pairing
         allowFrom:
-        - '366337118'
-        - '1951959493'  # Kyle Tse
+          - "366337118"
+          - "1951959493" # Kyle Tse
   epiow5:
     model:
       primary: sylphx/executor
@@ -120,5 +120,5 @@ instances:
       telegram:
         dmPolicy: pairing
         allowFrom:
-        - '366337118'
-        - '1951959493'  # Kyle Tse
+          - "366337118"
+          - "1951959493" # Kyle Tse
