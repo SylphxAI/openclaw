@@ -33,6 +33,12 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
       - name: Regenerate extracted constants from openclaw
         run: |
           set -euo pipefail
