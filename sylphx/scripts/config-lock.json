@@ -12,10 +12,7 @@
             "api": "openai-responses",
             "contextWindow": 500000,
             "id": "executor",
-            "input": [
-              "text",
-              "image"
-            ],
+            "input": ["text", "image"],
             "maxTokens": 64000,
             "name": "Sylphx Executor",
             "reasoning": true
@@ -30,9 +27,7 @@
     "elevated": {
       "enabled": true,
       "allowFrom": {
-        "telegram": [
-          "*"
-        ]
+        "telegram": ["*"]
       }
     },
     "exec": {
@@ -117,9 +112,7 @@
   },
   "diagnostics": {
     "enabled": true,
-    "flags": [
-      "timeline"
-    ]
+    "flags": ["timeline"]
   },
   "gateway": {
     "port": 3000,

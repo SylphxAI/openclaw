@@ -17,6 +17,7 @@ The `workspace/` directory in the repo contained full copies of OpenClaw's defau
 Extract workspace templates from OpenClaw's own source tree at Docker build time using a Python script (`scripts/build-workspace-templates.py`).
 
 The repo only stores:
+
 - `workspace/agents-base-section.md` — Customer runtime conventions (bun, mcporter, config safety)
 - `workspace/MEMORY.md` — Long-term memory stub (not part of OpenClaw's default bootstrap)
 
@@ -29,6 +30,7 @@ Layer 1: OpenClaw (upstream) — Default templates → updated on upgrade
 ```
 
 Build-time flow:
+
 1. Builder stage clones OpenClaw source
 2. `build-workspace-templates.py` reads `/app/docs/reference/templates/`
 3. Strips YAML frontmatter from each template
@@ -37,22 +39,26 @@ Build-time flow:
 6. Writes everything to `/app/workspace/`
 
 Runtime flow (entrypoint.sh):
+
 1. First boot: copies `/app/workspace/*` to `/workspace`, which resolves to `$HOME/.openclaw/workspace`
 2. Every boot: refreshes `<!-- BASE-START -->` / `<!-- BASE-END -->` markers in AGENTS.md
 
 ## Alternatives Considered
 
 ### 1. Manual copies in repo (previous approach)
+
 - ❌ Stale — copies drift from upstream on every OpenClaw release
 - ❌ Maintenance burden — requires manual sync
 - ❌ Layer violation — customer app repo owns upstream content
 
 ### 2. Let OpenClaw bootstrap + inject BASE on second boot
+
 - ❌ First boot has no BASE section (timing race)
 - ❌ Agent starts without infra conventions until next restart
 - ✅ Simpler — no build-time extraction
 
 ### 3. Runtime read from OpenClaw source
+
 - ❌ Fragile path dependency at runtime
 - ❌ Source tree may not exist in production image (pruned)
 - ✅ Always in sync

@@ -36,6 +36,7 @@ State-of-the-art industrial standard. Every time. Would you stake your reputatio
 **Pursue world-class.** Every dimension — would experts approve? Would users choose this over any alternative? Would competitors fear this?
 
 **Offense first.** Create value. Capture value.
+
 - What would make users wow?
 - What would make them pay?
 - What would make them tell friends?
@@ -85,16 +86,19 @@ State-of-the-art industrial standard. Every time. Would you stake your reputatio
 **Parallelize.** For complex multi-faceted tasks, create agent teams. Assign independent pieces to teammates working in parallel — research, cross-layer changes (frontend + backend + tests), new modules, competing hypotheses. Use subagents for simpler focused tasks that only report back.
 
 **Plan before doing.** For any non-trivial task:
+
 1. Use EnterPlanMode to plan the implementation
 2. Use TaskCreate to create todos for each step
 3. Execute systematically, using TaskUpdate to mark progress
 
 **Never forget, never drop.** Work in progress must be tracked:
+
 - Use TaskCreate BEFORE starting work
 - Use TaskUpdate to mark in_progress when starting, completed when done
 - If interrupted, leave clear notes in task description
 
 **Document decisions.** Every significant choice needs rationale:
+
 - Why this approach over alternatives?
 - What trade-offs were considered?
 - Write to CLAUDE.md for future reference
@@ -107,6 +111,7 @@ Two-layer durable memory:
 - **`memory/YYYY-MM-DD.md`** — Daily log (append-only). Running context, day-to-day notes.
 
 **Rules:**
+
 - If someone says "remember this," write it down immediately (do not keep it in RAM).
 - Decisions and preferences → `MEMORY.md`
 - Day-to-day notes and running context → `memory/YYYY-MM-DD.md`
@@ -156,6 +161,7 @@ Two-layer durable memory:
 **Fail loud.** If something unexpected happens, throw — don't swallow silently.
 
 Errors should be:
+
 - Caught at boundaries (API routes, event handlers)
 - Logged with full context (structured logging)
 - Surfaced to users with actionable messages
@@ -192,9 +198,11 @@ Errors should be:
 Write migration SQL directly. Update `_journal.json`. Skip `drizzle-kit generate` — it's not AI-friendly.
 
 **Build-time verification:**
+
 ```bash
 drizzle-kit migrate && drizzle-kit push --dry-run
 ```
+
 If there's any diff, migration is incomplete — fail the build.
 
 ## Hono RPC
@@ -204,33 +212,30 @@ If there's any diff, migration is incomplete — fail the build.
 ```typescript
 // ✅ Split: one Hono app + one client per entity
 const booksApp = new Hono()
-  .get('/', (c) => c.json([]))
-  .post('/', (c) => c.json({ id: 1 }))
-  .get('/:id', (c) => c.json({ id: c.req.param('id') }))
+  .get("/", (c) => c.json([]))
+  .post("/", (c) => c.json({ id: 1 }))
+  .get("/:id", (c) => c.json({ id: c.req.param("id") }));
 
-const authorsApp = new Hono()
-  .get('/', (c) => c.json([]))
-  .post('/', (c) => c.json({ id: 1 }))
+const authorsApp = new Hono().get("/", (c) => c.json([])).post("/", (c) => c.json({ id: 1 }));
 
 // Main app — chain with .route()
-const app = new Hono()
-  .route('/books', booksApp)
-  .route('/authors', authorsApp)
+const app = new Hono().route("/books", booksApp).route("/authors", authorsApp);
 
 // Clients — split by entity, <100 routes each
-export const booksClient = hc<typeof booksApp>('/api/books')
-export const authorsClient = hc<typeof authorsApp>('/api/authors')
+export const booksClient = hc<typeof booksApp>("/api/books");
+export const authorsClient = hc<typeof authorsApp>("/api/authors");
 ```
 
 **Chain routes** — separate `app.get()` calls break type inference:
+
 ```typescript
 // ✅ Chained — types work
-const app = new Hono().get('/', h1).post('/', h2)
+const app = new Hono().get("/", h1).post("/", h2);
 
 // ❌ Separate — types broken
-const app = new Hono()
-app.get('/', h1)
-app.post('/', h2)
+const app = new Hono();
+app.get("/", h1);
+app.post("/", h2);
 ```
 
 ## Frontend

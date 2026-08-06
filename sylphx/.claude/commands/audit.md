@@ -12,6 +12,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 ## Scan Areas
 
 ### 1. Code Quality
+
 - Dead code, unused imports, unreachable code
 - TODOs, FIXMEs, HACKs left in code
 - Weak typing (`any`, missing types, unsafe casts)
@@ -39,6 +40,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 - Edge cases: Business-impossible states prevented?
 
 ### 3. Architecture
+
 - Circular dependencies
 - God objects/files doing too much
 - Tight coupling between modules
@@ -49,6 +51,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 - Inconsistent patterns across codebase
 
 ### 4. UI/UX Issues
+
 - Confusing user flows
 - Missing loading states (use skeleton, not spinner)
 - Missing error states (with recovery actions)
@@ -61,6 +64,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 - Information overload
 
 ### 5. Modern UI Patterns (Lack of)
+
 - No inline editing (everything requires modal/page)
 - No drag & drop where it makes sense
 - No undo capability (destructive actions are permanent)
@@ -72,6 +76,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 - Jarring transitions (no smooth state changes)
 
 ### 6. Product Design
+
 - Unclear value proposition
 - Friction in core user journey
 - Missing onboarding guidance
@@ -82,6 +87,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 - Beginner barriers too high
 
 ### 7. Performance
+
 - Slow page loads
 - Unnecessary re-renders
 - Large bundle sizes
@@ -91,6 +97,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 - Unoptimized images/assets
 
 ### 8. Security
+
 - Exposed secrets or credentials
 - Missing input validation
 - XSS vulnerabilities
@@ -100,6 +107,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 - Overly permissive CORS
 
 ### 9. Developer Experience
+
 - Missing or outdated documentation
 - Unclear setup instructions
 - Flaky or missing tests
@@ -108,6 +116,7 @@ Scan the entire project for issues. Find problems, don't fix them. Open GitHub i
 - Confusing folder structure
 
 ### 10. Public-Facing & Exposure
+
 - **SEO**: Missing/poor title tags, meta descriptions, structured data
 - **Social Sharing**: Missing OG tags, Twitter cards, poor share previews
 - **Landing/Home**: Unclear value prop above the fold, weak CTAs
@@ -156,25 +165,28 @@ EOF
 After scanning, report:
 
 ### Summary
+
 | Category | Issues Found | High | Medium | Low |
-|----------|--------------|------|--------|-----|
+| -------- | ------------ | ---- | ------ | --- |
 | Code     | ...          | ...  | ...    | ... |
 | UI/UX    | ...          | ...  | ...    | ... |
 | ...      | ...          | ...  | ...    | ... |
 
 ### Issues Created
+
 - #123 [Code] Description...
 - #124 [UX] Description...
 - ...
 
 ### Critical Issues (need immediate attention)
+
 - ...
 
 ## Mindset
 
-* Be thorough, not selective
-* No issue is too small to document
-* Assume nothing is perfect
-* Fresh eyes find more problems
-* The goal is awareness, not judgment
-* Better to over-report than miss something
+- Be thorough, not selective
+- No issue is too small to document
+- Assume nothing is perfect
+- Fresh eyes find more problems
+- The goal is awareness, not judgment
+- Better to over-report than miss something
