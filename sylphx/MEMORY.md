@@ -10,14 +10,14 @@
 - **Internal cluster endpoint**: `https://10.10.0.240:6443` (Talos VIP, auto-failover between CPs)
 - **Nodes**:
 
-| Hostname | IP | Role | Server ID | Notes |
-|----------|-----|------|-----------|-------|
-| talos-2a014f82713b491 | 10.10.0.1 | CP | 2920324 (node1) | Legacy hostname, functional |
-| compute-fsn1-2927556 | 10.10.0.2 | CP | 2927556 (node2) | Reprovisioned v3.1.0 |
-| talos-10-10-0-4 | 10.10.0.4 | CP | 2932787 (node4) | Legacy hostname, functional |
-| compute-fsn1-2938104 | 10.10.0.6 | Worker | 2938104 (node6) | MachineDeployment |
-| compute-fsn1-2957069 | 10.10.0.7 | Worker | 2957069 (node7) | MachineDeployment |
-| compute-fsn1-2958377 | 10.10.0.8 | Worker | 2958377 (node8) | MachineDeployment |
+| Hostname              | IP        | Role   | Server ID       | Notes                       |
+| --------------------- | --------- | ------ | --------------- | --------------------------- |
+| talos-2a014f82713b491 | 10.10.0.1 | CP     | 2920324 (node1) | Legacy hostname, functional |
+| compute-fsn1-2927556  | 10.10.0.2 | CP     | 2927556 (node2) | Reprovisioned v3.1.0        |
+| talos-10-10-0-4       | 10.10.0.4 | CP     | 2932787 (node4) | Legacy hostname, functional |
+| compute-fsn1-2938104  | 10.10.0.6 | Worker | 2938104 (node6) | MachineDeployment           |
+| compute-fsn1-2957069  | 10.10.0.7 | Worker | 2957069 (node7) | MachineDeployment           |
+| compute-fsn1-2958377  | 10.10.0.8 | Worker | 2958377 (node8) | MachineDeployment           |
 
 - **VIP**: `10.10.0.240` — Talos VIP for CP HA. Auto-failover < 5s.
 - **IP Allocation**: Hosts 1-199, Reserved 200-239, VIPs 240-254
@@ -29,31 +29,31 @@
 
 **Core Services:**
 
-| Service | Namespace | Details |
-|---------|-----------|---------|
-| **ArgoCD** | argocd | 55 apps, App-of-Apps pattern, `SylphxAI/platform` repo |
-| **Registry** | registry | Zot v2.1.15 on Ceph RBD, `registry.sylphx.com`, htpasswd auth, ArgoCD-managed |
-| **Ceph** | N/A (storage) | Hybrid cephadm+Rook. 3 MON, 4 MGR, 15 OSD (105 TiB), 2+ MDS, 4 RGW. Image: `quay.io/ceph/ceph:v19.2.3` |
-| **CNPG** | cnpg-system | PostgreSQL operator — `sylphx-pg` (2 instances: pg-2, pg-3), 30 databases |
-| **MySQL** | cubeage-mysql | Standalone mode (post-Percona CLONE disaster). Pod `mysql-standalone`, 14 databases. Backup CronJob 02:30 UTC. |
-| **Redis** | redis | K8s deployment, ACL-based multi-tenant |
-| **Monitoring** | monitoring | VictoriaMetrics (metrics), Grafana (dashboards), Loki (logs), Alloy (log collector) |
-| **CI Runners** | ci-runners | Webhook-driven JIT. GitHub App ID 1299545. Ephemeral Kata CLH VMs. Labels: `[self-hosted, sylphx, linux, standard/large/xlarge]`. Ghost sweep every 30 min. |
-| **Spiron** | spiron | 5 DinD instances (epiow, hypoidea, stanley, test, vanessa) — privileged, 4Gi memory |
+| Service        | Namespace     | Details                                                                                                                                                     |
+| -------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ArgoCD**     | argocd        | 55 apps, App-of-Apps pattern, `SylphxAI/platform` repo                                                                                                      |
+| **Registry**   | registry      | Zot v2.1.15 on Ceph RBD, `registry.sylphx.com`, htpasswd auth, ArgoCD-managed                                                                               |
+| **Ceph**       | N/A (storage) | Hybrid cephadm+Rook. 3 MON, 4 MGR, 15 OSD (105 TiB), 2+ MDS, 4 RGW. Image: `quay.io/ceph/ceph:v19.2.3`                                                      |
+| **CNPG**       | cnpg-system   | PostgreSQL operator — `sylphx-pg` (2 instances: pg-2, pg-3), 30 databases                                                                                   |
+| **MySQL**      | cubeage-mysql | Standalone mode (post-Percona CLONE disaster). Pod `mysql-standalone`, 14 databases. Backup CronJob 02:30 UTC.                                              |
+| **Redis**      | redis         | K8s deployment, ACL-based multi-tenant                                                                                                                      |
+| **Monitoring** | monitoring    | VictoriaMetrics (metrics), Grafana (dashboards), Loki (logs), Alloy (log collector)                                                                         |
+| **CI Runners** | ci-runners    | Webhook-driven JIT. GitHub App ID 1299545. Ephemeral Kata CLH VMs. Labels: `[self-hosted, sylphx, linux, standard/large/xlarge]`. Ghost sweep every 30 min. |
+| **Spiron**     | spiron        | 5 DinD instances (epiow, hypoidea, stanley, test, vanessa) — privileged, 4Gi memory                                                                         |
 
 ### Storage Architecture
 
 **Hybrid cephadm+Rook**: cephadm manages MON/MGR/MDS/RGW on dedicated storage nodes. Rook manages OSDs on K8s storage node + CSI on compute for volume mounts.
 
-| Hostname | VLAN IP | Server ID | Role |
-|----------|---------|-----------|------|
-| storage-1 | 10.10.0.32 | 2960977 (node9) | cephadm (MON/MGR/MDS/RGW) |
-| storage-2 | 10.10.0.30 | 2932729 (node3) | cephadm (MON/MGR/MDS/RGW) |
-| storage-3 | 10.10.0.31 | 2933228 (node5) | cephadm (MON/MGR/MDS/RGW) |
-| storage-4 | 10.10.0.33 | — | cephadm (4 OSDs) |
-| storage-5 | 10.10.0.35 | — | cephadm (4 OSDs) |
-| storage-6 | 10.10.0.36 | — | cephadm (4 OSDs) |
-| storage-fsn1-2964886 | 10.10.0.37 | — | Rook (3 NVMe OSDs) |
+| Hostname             | VLAN IP    | Server ID       | Role                      |
+| -------------------- | ---------- | --------------- | ------------------------- |
+| storage-1            | 10.10.0.32 | 2960977 (node9) | cephadm (MON/MGR/MDS/RGW) |
+| storage-2            | 10.10.0.30 | 2932729 (node3) | cephadm (MON/MGR/MDS/RGW) |
+| storage-3            | 10.10.0.31 | 2933228 (node5) | cephadm (MON/MGR/MDS/RGW) |
+| storage-4            | 10.10.0.33 | —               | cephadm (4 OSDs)          |
+| storage-5            | 10.10.0.35 | —               | cephadm (4 OSDs)          |
+| storage-6            | 10.10.0.36 | —               | cephadm (4 OSDs)          |
+| storage-fsn1-2964886 | 10.10.0.37 | —               | Rook (3 NVMe OSDs)        |
 
 - **Rook**: Upstream `v1.19.3`. ArgoCD auto-sync DISABLED for operator.
 - **cephadm module**: ENABLED on storage nodes.
@@ -94,14 +94,14 @@
 
 ## Instances
 
-| Instance   | Subdomain                      | Telegram Bot          |
-|------------|--------------------------------|-----------------------|
-| sylphx     | sylphx.claw.sylphx.com        | @kylehelperbot        |
-| ozyrix     | ozyrix.claw.sylphx.com        | @Cherylkarenbot       |
-| wcloingod  | wcloingod.claw.sylphx.com     | @miyuki_wing_ai_bot   |
-| tsefamily  | tsefamily.claw.sylphx.com     | @sagetsebot           |
-| epiow      | epiow.claw.sylphx.com        | @epiowaibot           |
-| cubeage    | cubeage.claw.sylphx.com       | @cubeagebot           |
+| Instance  | Subdomain                 | Telegram Bot        |
+| --------- | ------------------------- | ------------------- |
+| sylphx    | sylphx.claw.sylphx.com    | @kylehelperbot      |
+| ozyrix    | ozyrix.claw.sylphx.com    | @Cherylkarenbot     |
+| wcloingod | wcloingod.claw.sylphx.com | @miyuki_wing_ai_bot |
+| tsefamily | tsefamily.claw.sylphx.com | @sagetsebot         |
+| epiow     | epiow.claw.sylphx.com     | @epiowaibot         |
+| cubeage   | cubeage.claw.sylphx.com   | @cubeagebot         |
 
 ## Deployment — Platform-Managed
 
@@ -109,15 +109,15 @@
 - **Data model**: 1 project → 7 environments (one per customer instance) → 1 service per environment.
 - **7 Environments** (all `env_type: production`, `reconcilerManaged: true`, `auto_deploy: true`):
 
-| Environment | Service | Env ID | K8s Deployment |
-|-------------|---------|--------|----------------|
-| Sylphx | openclaw-sylphx | `00ffebf8` | `openclaw-sylphx` |
-| Ozyrix | openclaw-ozyrix | `3b6902aa` | `openclaw-ozyrix` |
-| Cubeage | openclaw-cubeage | `ea436161` | `openclaw-cubeage` |
-| Epiow | openclaw-epiow | `ad5dddc0` | `openclaw-epiow` |
-| Wcloingod | openclaw-wcloingod | `4bf43408` | `openclaw-wcloingod` |
-| Tsefamily | openclaw-tsefamily | `fa0d9672` | `openclaw-tsefamily` |
-| Test | openclaw-test | `d97e23d6` | `openclaw-test` |
+| Environment | Service            | Env ID     | K8s Deployment       |
+| ----------- | ------------------ | ---------- | -------------------- |
+| Sylphx      | openclaw-sylphx    | `00ffebf8` | `openclaw-sylphx`    |
+| Ozyrix      | openclaw-ozyrix    | `3b6902aa` | `openclaw-ozyrix`    |
+| Cubeage     | openclaw-cubeage   | `ea436161` | `openclaw-cubeage`   |
+| Epiow       | openclaw-epiow     | `ad5dddc0` | `openclaw-epiow`     |
+| Wcloingod   | openclaw-wcloingod | `4bf43408` | `openclaw-wcloingod` |
+| Tsefamily   | openclaw-tsefamily | `fa0d9672` | `openclaw-tsefamily` |
+| Test        | openclaw-test      | `d97e23d6` | `openclaw-test`      |
 
 - **`reconcilerManaged: true`** = full SSA mode. Reconciler generates complete K8s Deployment/Service/Secret specs from Platform DB.
 - **`deploy_app_id: openclaw`** = K8s namespace.
@@ -214,20 +214,20 @@ Per-instance keys should be injected through the platform-managed app secret `SY
 - **Isolation**: `REVOKE CONNECT ON DATABASE ... FROM PUBLIC` + per-app `GRANT CONNECT`
 - **Connection limits**: All app users `CONNECTION LIMIT 20`
 
-| App User | Database(s) | App(s) |
-|----------|-------------|--------|
-| funbig2_tw_app | funbig2_tw | fun-big2-tw |
-| funbigtwo_app | funbigtwo | fun-big2-hk |
-| funshowhand_app | funshowhand | fun-showhand |
-| mahjong_app | mahjong | fun-mahjong |
-| texaspoker_app | texaspoker | fun-texas-holdem |
-| trivia_app | sylphx_trivia, trivia_staging | trivia |
-| puzzled_app | sylphx_puzzled, puzzled_staging | puzzled |
-| epiow_app | epiow, epiow_staging | epiow |
-| viral_app | viral, viral_staging | viral |
-| sylphx_platform_app | sylphx_prod | sylphx-platform |
-| bgca | bgca | bgca-web |
-| cs_user | cs_crm, cs_crm_staging | cubeage-cs-agent |
+| App User            | Database(s)                     | App(s)           |
+| ------------------- | ------------------------------- | ---------------- |
+| funbig2_tw_app      | funbig2_tw                      | fun-big2-tw      |
+| funbigtwo_app       | funbigtwo                       | fun-big2-hk      |
+| funshowhand_app     | funshowhand                     | fun-showhand     |
+| mahjong_app         | mahjong                         | fun-mahjong      |
+| texaspoker_app      | texaspoker                      | fun-texas-holdem |
+| trivia_app          | sylphx_trivia, trivia_staging   | trivia           |
+| puzzled_app         | sylphx_puzzled, puzzled_staging | puzzled          |
+| epiow_app           | epiow, epiow_staging            | epiow            |
+| viral_app           | viral, viral_staging            | viral            |
+| sylphx_platform_app | sylphx_prod                     | sylphx-platform  |
+| bgca                | bgca                            | bgca-web         |
+| cs_user             | cs_crm, cs_crm_staging          | cubeage-cs-agent |
 
 ### MySQL: `cubeage-mysql` namespace
 
@@ -253,6 +253,7 @@ Per-instance keys should be injected through the platform-managed app secret `SY
 **Repo**: `SylphxAI/cluster-api-provider-hetzner-robot` (local: `/Users/kyle/caphr`)
 
 **Features (v3.1.0)**:
+
 - Hostname: `compute-<dc>-<serverID>` (DC from HetznerRobotCluster.Spec.DC, defaults to fsn1)
 - NIC: deviceSelector by MAC (auto-detected from rescue SSH)
 - IPv6: dual-stack kubelet nodeIP
@@ -263,10 +264,12 @@ Per-instance keys should be injected through the platform-managed app secret `SY
 - CRD: primaryMAC + dc fields
 
 **MachineHealthChecks (live)**:
+
 - `cp-health-check`: 3 CP nodes, `maxUnhealthy: 34%`, retryLimit: 2, timeout: 300s
 - `worker-health-check`: workers, `maxUnhealthy: 1`, retryLimit: 3, timeout: 180s
 
 **CAPI Controllers**:
+
 - CAPHR: 1 replica (v3.1.0)
 - CACPPT: 0 replicas (paused — no spare hosts for TCP rolling update)
 - CABPT: 1 replica
@@ -335,6 +338,7 @@ Per-instance keys should be injected through the platform-managed app secret `SY
 ## 2026-04-03/04 Incident Recovery Progress
 
 ### Completed
+
 - ✅ Platform DB (pg-sylphx-platform) — standalone PG pod running, data restored from Mar 26 RBD image
 - ✅ Platform Controller — running with image `228bc3f89c5c`, reconciling all envs
 - ✅ sylphx.com — 200 OK, web service running
@@ -348,6 +352,7 @@ Per-instance keys should be injected through the platform-managed app secret `SY
 - ✅ Kyverno — scaled down to unblock Percona operator
 
 ### Pending
+
 - ❌ Percona MySQL (db-cubeage-platform) — CRD validation fails on existing cluster SSA patch. Need code fix: existing cluster path must emit full template, not minimal SSA patch. PVC with data exists in `db-cubeage-platform` namespace.
 - ❌ CNPG databases — 38 resources provisioning/failed timeout. Most have existing CNPG clusters but reconciler sees them as timed out.
 - ❌ Kyverno — scaled down, needs proper exclude for Percona operator SA
@@ -356,6 +361,7 @@ Per-instance keys should be injected through the platform-managed app secret `SY
 - ❌ 10.10.0.32 (compute-fsn1-2960977) — cordoned, VLAN connectivity issues from pods
 
 ### Key Workarounds Active
+
 1. `allow-all-egress` NetworkPolicy in sylphx-platform (overrides restrictive app-policy)
 2. Registry anonymous read (uncommitted, ArgoCD sync paused)
 3. Kyverno admission controller scaled to 0

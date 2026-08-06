@@ -22,24 +22,28 @@ Based on this specific project's nature, determine what "excellence" means here.
 ## Evaluation Dimensions
 
 ### Architecture
+
 - Is the architecture cutting-edge or outdated?
 - Would system design experts approve?
 - Is it scalable, maintainable, elegant?
 - Are the abstractions right — not too much, not too little?
 
 ### Code Quality
+
 - Could this code be used as teaching material?
 - Is it exemplary or just acceptable?
 - Would senior engineers at top companies approve?
 - Is it clean, readable, well-structured?
 
 ### Business Logic & Design
+
 - Does the business flow make sense?
 - Are there logical gaps or inconsistencies?
 - Is the product design sound?
 - Would domain experts find issues?
 
 ### User Experience
+
 - Is the UX **delightful** or just **functional**?
 - Would users choose this over competitors?
 - Is it intuitive, fast, polished?
@@ -48,22 +52,26 @@ Based on this specific project's nature, determine what "excellence" means here.
 - Or does it feel **dated**? (modal forms, no shortcuts, destructive actions)
 
 ### Accessibility & Inclusivity
+
 - Can everyone use this? Keyboard users? Screen reader users?
 - Does it meet WCAG standards (contrast, focus, labels)?
 - Does it respect user preferences (reduced motion, dark mode)?
 - Is it an afterthought or designed-in from the start?
 
 ### Mobile & Responsive
+
 - Does it work beautifully on all screen sizes?
 - Are touch interactions first-class, not degraded?
 - Is mobile a real use case or an afterthought?
 
 ### Performance
+
 - Is it best-in-class or just acceptable?
 - Are there obvious bottlenecks?
 - Would performance engineers approve?
 
 ### Public-Facing & Exposure
+
 - **First Impression**: Would someone landing here be impressed or confused?
 - **SEO/Discoverability**: Can people find this? Are meta tags, titles, descriptions optimized?
 - **Social Sharing**: Do OG tags, Twitter cards make people want to click?
@@ -82,6 +90,7 @@ Based on this specific project's nature, determine what "excellence" means here.
 ## Output
 
 ### Overall Verdict
+
 ```
 [ ] World-Class — Experts would be impressed
 [ ] Strong — Good, but room for improvement
@@ -90,22 +99,26 @@ Based on this specific project's nature, determine what "excellence" means here.
 ```
 
 ### Dimension Scores
-| Dimension | Rating | Key Observations |
-|-----------|--------|------------------|
-| Architecture | ⭐⭐⭐⭐⭐ | ... |
-| Code Quality | ⭐⭐⭐⭐☆ | ... |
-| Business Logic | ⭐⭐⭐☆☆ | ... |
-| UX | ⭐⭐⭐⭐☆ | ... |
-| Performance | ⭐⭐⭐⭐⭐ | ... |
-| Public-Facing | ⭐⭐⭐☆☆ | ... |
+
+| Dimension      | Rating     | Key Observations |
+| -------------- | ---------- | ---------------- |
+| Architecture   | ⭐⭐⭐⭐⭐ | ...              |
+| Code Quality   | ⭐⭐⭐⭐☆  | ...              |
+| Business Logic | ⭐⭐⭐☆☆   | ...              |
+| UX             | ⭐⭐⭐⭐☆  | ...              |
+| Performance    | ⭐⭐⭐⭐⭐ | ...              |
+| Public-Facing  | ⭐⭐⭐☆☆   | ...              |
 
 ### What's Excellent
+
 - ...
 
 ### What's Holding It Back
+
 - ...
 
 ### To Reach World-Class
+
 - ...
 
 ## Remember

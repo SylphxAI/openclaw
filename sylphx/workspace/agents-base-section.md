@@ -1,5 +1,7 @@
 <!-- BEGIN MANAGED BLOCK -->
+
 ## Infra Conventions
+
 - **Memory model:** `MEMORY.md` = curated long-term (auto-injected, keep ≤16k chars). `memory/YYYY-MM-DD.md` = daily logs (on-demand via memory_search). Never put plaintext secrets in either — use `op://` refs only.
 - **Memory consolidation:** run every few days (cron). Prefer `openclaw-memory-consolidate --workspace "$HOME/.openclaw/workspace"` (or skill `memory-consolidate`). Archive full MEMORY before rewrite; do not delete daily logs.
 - Record more rather than less in daily logs — consolidate durable facts into MEMORY.md later.
