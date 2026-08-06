@@ -10,6 +10,7 @@ Evaluate product design holistically — from user experience to business impact
 ## 1. User Journey Audit
 
 ### First-Time User (0-5 minutes)
+
 - Can they understand what the product does within 10 seconds?
 - Is the value proposition immediately clear?
 - Can they complete the core action without guidance?
@@ -17,6 +18,7 @@ Evaluate product design holistically — from user experience to business impact
 - Are there unnecessary barriers (signup walls, complex forms)?
 
 ### Learning User (5 min - 1 week)
+
 - Is progressive disclosure working? (simple → advanced)
 - Are help/tooltips available but not intrusive?
 - Can they recover from mistakes easily?
@@ -24,6 +26,7 @@ Evaluate product design holistically — from user experience to business impact
 - What % would abandon at this stage? Why?
 
 ### Power User (1 week+)
+
 - Are there shortcuts for frequent actions?
 - Can they customize/personalize their experience?
 - Are advanced features discoverable but not cluttering?
@@ -33,26 +36,31 @@ Evaluate product design holistically — from user experience to business impact
 ## 2. Business Value Assessment
 
 ### Acquisition
+
 - Does the landing/home page convert visitors to users?
 - Is the onboarding optimizing for activation, not just signup?
 - What's the friction cost vs. quality filter tradeoff?
 
 ### Activation
+
 - What's the "aha moment"? Is the path to it clear?
 - How many steps to experience core value?
 - What % of signups become activated users?
 
 ### Retention
+
 - What triggers bring users back?
 - Are there habit-forming loops?
 - What would make a user churn? Are we addressing it?
 
 ### Revenue
+
 - Is the pricing/upgrade path clear and compelling?
 - Are premium features properly showcased?
 - Does free tier demonstrate value without giving everything away?
 
 ### Referral
+
 - Is there a natural share moment?
 - Would users be proud to show this to others?
 - Is word-of-mouth built into the experience?
@@ -115,23 +123,27 @@ Evaluate product design holistically — from user experience to business impact
 ## Output
 
 ### Findings Report
+
 | Issue | User Type | Business Impact | Effort | Priority |
-|-------|-----------|-----------------|--------|----------|
+| ----- | --------- | --------------- | ------ | -------- |
 | ...   | ...       | High/Med/Low    | S/M/L  | P0/P1/P2 |
 
 ### Quick Wins (< 1 day effort, high impact)
+
 - ...
 
 ### Strategic Improvements (larger effort, transformative)
+
 - ...
 
 ### Questions for User Research
+
 - ...
 
 ## Mindset
 
-* You ARE the user. Feel their frustration, anticipate their needs.
-* Every click, every second of confusion costs business value.
-* Beautiful ≠ usable. Usable + beautiful = delightful.
-* The best UI is invisible — users achieve goals without noticing the interface.
-* Design for the user you have, not the user you wish you had.
+- You ARE the user. Feel their frustration, anticipate their needs.
+- Every click, every second of confusion costs business value.
+- Beautiful ≠ usable. Usable + beautiful = delightful.
+- The best UI is invisible — users achieve goals without noticing the interface.
+- Design for the user you have, not the user you wish you had.

@@ -12,6 +12,7 @@ Systematically refactor the codebase toward excellence. The goal is not just cle
 > "Any fool can write code that a computer can understand. Good programmers write code that humans can understand." — Martin Fowler
 
 Refactoring is about:
+
 - **Future velocity** — clean code is faster to change
 - **Bug prevention** — simple code has fewer hiding places for bugs
 - **Onboarding** — new contributors can understand and contribute faster
@@ -30,18 +31,22 @@ Refactoring is about:
 ## Process
 
 ### Phase 1: Understand
+
 - What is the code trying to do?
 - Why was it written this way?
 - What are the dependencies and side effects?
 
 ### Phase 2: Refactor
+
 For each improvement:
+
 1. Understand the context first
 2. Make one logical change
 3. Verify behavior unchanged (tests, manual check)
 4. Commit atomically: `refactor: description`
 
 ### Phase 3: Verify
+
 - Tests pass
 - Types check
 - Linter happy
@@ -50,11 +55,11 @@ For each improvement:
 
 ## Principles
 
-* **Understand before changing** — never refactor blindly
-* **One change at a time** — atomic commits, easy to revert
-* **Behavior unchanged** — refactor ≠ rewrite
-* **Tests are your safety net** — if no tests, add them first
-* **When in doubt, simplify** — less code is usually better
+- **Understand before changing** — never refactor blindly
+- **One change at a time** — atomic commits, easy to revert
+- **Behavior unchanged** — refactor ≠ rewrite
+- **Tests are your safety net** — if no tests, add them first
+- **When in doubt, simplify** — less code is usually better
 
 ## Exit Condition
 

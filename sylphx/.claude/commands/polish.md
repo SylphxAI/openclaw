@@ -12,6 +12,7 @@ Transform functional UI into delightful, state-of-the-art interfaces. This is no
 > **"Reduce user thinking, increase system intelligence."**
 
 Modern UI is:
+
 - **Direct** — interact with the thing itself, not a separate control
 - **Responsive** — immediate feedback, never leave users wondering
 - **Forgiving** — undo everywhere, mistakes are recoverable
@@ -23,6 +24,7 @@ Modern UI is:
 ### 1. Direct Manipulation
 
 **Before → After:**
+
 - Upload button → Click avatar/image to change
 - Edit button → Click text to edit inline
 - Reorder with arrows → Drag & drop
@@ -33,6 +35,7 @@ Modern UI is:
 ### 2. Rich Feedback
 
 **Before → After:**
+
 - Spinner → Skeleton/shimmer loading
 - Submit and wait → Optimistic update (instant, sync in background)
 - Alert box → Toast notification (non-blocking)
@@ -44,6 +47,7 @@ Modern UI is:
 ### 3. Modern Input Patterns
 
 **Before → After:**
+
 - Text field for tags → Chip/tag input with autocomplete
 - Dropdown select → Combobox with search and create
 - File upload button → Drag & drop zone + paste support
@@ -55,6 +59,7 @@ Modern UI is:
 ### 4. Information Architecture
 
 **Before → After:**
+
 - All fields visible → Progressive disclosure (show when needed)
 - Fixed layout → Adaptive layout based on content/task
 - Pagination → Infinite scroll with virtualization
@@ -66,6 +71,7 @@ Modern UI is:
 ### 5. Trust & Control
 
 **Before → After:**
+
 - "Are you sure?" dialogs → Undo everywhere (Gmail style)
 - Save button → Auto-save with visible status
 - Silent operations → Visible system status (syncing, saved, offline)
@@ -77,6 +83,7 @@ Modern UI is:
 ### 6. Visual Polish
 
 **Before → After:**
+
 - Flat/harsh shadows → Subtle depth (light shadows, blur)
 - Color as decoration → Color as information (status, priority)
 - Uniform text → Clear typography hierarchy
@@ -88,6 +95,7 @@ Modern UI is:
 ### 7. Power User Enablement
 
 **Before → After:**
+
 - Mouse only → Keyboard shortcuts for common actions
 - One item at a time → Bulk selection and actions
 - Fixed views → Customizable columns/layouts
@@ -99,6 +107,7 @@ Modern UI is:
 ### 8. Mobile & Touch
 
 **Before → After:**
+
 - Desktop-only design → Responsive from the start
 - Click targets → Touch-friendly tap targets (44px+)
 - Hover states only → Touch gestures (swipe, long-press)
@@ -110,26 +119,33 @@ Modern UI is:
 ## Process
 
 ### 1. Audit Current State
+
 Walk through the UI as a user:
+
 - Where do I have to click too many times?
 - Where am I waiting without feedback?
 - Where do I feel friction or annoyance?
 - What feels dated compared to best-in-class apps?
 
 ### 2. Prioritize by Impact
+
 Focus on:
+
 - High-frequency interactions (used daily)
 - Pain points (users complain or work around)
 - First impressions (onboarding, landing)
 
 ### 3. Apply Modern Patterns
+
 For each area:
+
 - Identify the current pattern
 - Choose the modern equivalent
 - Implement with smooth transitions
 - Ensure accessibility is maintained
 
 ### 4. Verify Quality
+
 - Interactions feel snappy (< 100ms feedback)
 - Animations are smooth (60fps)
 - Works with keyboard navigation
@@ -138,19 +154,20 @@ For each area:
 
 ## Reference: Best-in-Class Examples
 
-| Pattern | See How It's Done |
-|---------|-------------------|
-| Command Palette | Linear, Raycast, VS Code (⌘K) |
-| Inline Editing | Notion, Airtable |
-| Drag & Drop | Trello, Figma |
-| Optimistic UI | Twitter/X likes, Gmail send |
-| Skeleton Loading | Facebook, LinkedIn |
-| Tag Input | GitHub labels, Notion tags |
-| Auto-save | Google Docs, Figma |
+| Pattern          | See How It's Done             |
+| ---------------- | ----------------------------- |
+| Command Palette  | Linear, Raycast, VS Code (⌘K) |
+| Inline Editing   | Notion, Airtable              |
+| Drag & Drop      | Trello, Figma                 |
+| Optimistic UI    | Twitter/X likes, Gmail send   |
+| Skeleton Loading | Facebook, LinkedIn            |
+| Tag Input        | GitHub labels, Notion tags    |
+| Auto-save        | Google Docs, Figma            |
 
 ## Accessibility is Non-Negotiable
 
 Modern ≠ Inaccessible. Every polish must maintain:
+
 - **Keyboard navigation** — all interactions work without mouse
 - **Screen reader support** — proper ARIA labels, announcements
 - **Reduced motion** — respect `prefers-reduced-motion`
@@ -159,9 +176,9 @@ Modern ≠ Inaccessible. Every polish must maintain:
 
 ## Remember
 
-* **Polish is not decoration** — it's reducing friction
-* **Motion with purpose** — guide attention, show relationships
-* **Accessibility first** — modern doesn't mean inaccessible
-* **Performance is UX** — slow animations are worse than none
-* **Consistency compounds** — one pattern, used everywhere
-* **Steal from the best** — Linear, Figma, Notion set the bar
+- **Polish is not decoration** — it's reducing friction
+- **Motion with purpose** — guide attention, show relationships
+- **Accessibility first** — modern doesn't mean inaccessible
+- **Performance is UX** — slow animations are worse than none
+- **Consistency compounds** — one pattern, used everywhere
+- **Steal from the best** — Linear, Figma, Notion set the bar

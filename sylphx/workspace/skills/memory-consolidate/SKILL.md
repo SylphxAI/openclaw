@@ -9,11 +9,11 @@ Use when MEMORY.md is large, truncated at bootstrap (`bootstrapMaxChars`, defaul
 
 ## OpenClaw memory model (SSOT)
 
-| File | Role | Injection |
-|------|------|-----------|
-| `MEMORY.md` | Curated long-term facts | Auto-injected (truncated at bootstrap max) |
-| `memory/YYYY-MM-DD.md` | Daily / episodic logs | On-demand via `memory_search` / `memory_get` |
-| `memory/archive/` | Full pre-consolidation snapshots | On-demand only |
+| File                   | Role                             | Injection                                    |
+| ---------------------- | -------------------------------- | -------------------------------------------- |
+| `MEMORY.md`            | Curated long-term facts          | Auto-injected (truncated at bootstrap max)   |
+| `memory/YYYY-MM-DD.md` | Daily / episodic logs            | On-demand via `memory_search` / `memory_get` |
+| `memory/archive/`      | Full pre-consolidation snapshots | On-demand only                               |
 
 ## Rules
 

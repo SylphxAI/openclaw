@@ -6,32 +6,38 @@
 // =============================================================================
 
 (function () {
-  'use strict';
+  "use strict";
 
   // -------------------------------------------------------------------------
   // 1. navigator.deviceMemory — report realistic 8 GB
   // -------------------------------------------------------------------------
   try {
-    Object.defineProperty(navigator, 'deviceMemory', {
-      get: function () { return 8; },
+    Object.defineProperty(navigator, "deviceMemory", {
+      get: function () {
+        return 8;
+      },
       enumerable: true,
       configurable: true,
     });
-  } catch (_) { /* already defined, skip */ }
+  } catch (_) {
+    /* already defined, skip */
+  }
 
   // -------------------------------------------------------------------------
   // 2. chrome.runtime — mimic a real Chrome install with extension API stubs
   // -------------------------------------------------------------------------
   try {
-    if (typeof window.chrome === 'undefined') {
+    if (typeof window.chrome === "undefined") {
       window.chrome = {};
     }
     if (!window.chrome.runtime) {
       const noop = function () {};
       // Create functions that pass toString() checks
       const makeNative = function (fn, name) {
-        Object.defineProperty(fn, 'toString', {
-          value: function () { return 'function ' + name + '() { [native code] }'; },
+        Object.defineProperty(fn, "toString", {
+          value: function () {
+            return "function " + name + "() { [native code] }";
+          },
           writable: false,
           enumerable: false,
           configurable: true,
@@ -40,23 +46,27 @@
       };
       window.chrome.runtime = {
         id: undefined, // real Chrome returns undefined when no extension context
-        connect: makeNative(function connect() {}, 'connect'),
-        sendMessage: makeNative(function sendMessage() {}, 'sendMessage'),
-        getManifest: makeNative(function getManifest() {}, 'getManifest'),
-        getURL: makeNative(function getURL(path) { return ''; }, 'getURL'),
+        connect: makeNative(function connect() {}, "connect"),
+        sendMessage: makeNative(function sendMessage() {}, "sendMessage"),
+        getManifest: makeNative(function getManifest() {}, "getManifest"),
+        getURL: makeNative(function getURL(path) {
+          return "";
+        }, "getURL"),
         onConnect: { addListener: noop, removeListener: noop, hasListener: noop },
         onMessage: { addListener: noop, removeListener: noop, hasListener: noop },
       };
     }
-  } catch (_) { /* skip */ }
+  } catch (_) {
+    /* skip */
+  }
 
   // -------------------------------------------------------------------------
   // 3. WebGL renderer & vendor spoofing
   //    Override getParameter() to return realistic GPU info instead of
   //    SwiftShader signatures which are a dead giveaway for headless.
   // -------------------------------------------------------------------------
-  const SPOOFED_VENDOR = 'Intel Inc.';
-  const SPOOFED_RENDERER = 'ANGLE (Intel, Intel(R) UHD Graphics 630, OpenGL 4.5)';
+  const SPOOFED_VENDOR = "Intel Inc.";
+  const SPOOFED_RENDERER = "ANGLE (Intel, Intel(R) UHD Graphics 630, OpenGL 4.5)";
 
   // WebGL debug extension constants
   const UNMASKED_VENDOR_WEBGL = 0x9245;
@@ -71,15 +81,17 @@
       return original.call(this, param);
     };
     // Pass toString() check
-    Object.defineProperty(patched, 'toString', {
-      value: function () { return 'function getParameter() { [native code] }'; },
+    Object.defineProperty(patched, "toString", {
+      value: function () {
+        return "function getParameter() { [native code] }";
+      },
       writable: false,
       enumerable: false,
       configurable: true,
     });
-    Object.defineProperty(patched, 'name', { value: 'getParameter' });
-    Object.defineProperty(patched, 'length', { value: 1 });
-    Object.defineProperty(proto, 'getParameter', {
+    Object.defineProperty(patched, "name", { value: "getParameter" });
+    Object.defineProperty(patched, "length", { value: 1 });
+    Object.defineProperty(proto, "getParameter", {
       value: patched,
       writable: true,
       enumerable: false,
@@ -87,8 +99,12 @@
     });
   };
 
-  try { spoofGetParameter(WebGLRenderingContext.prototype); } catch (_) {}
-  try { spoofGetParameter(WebGL2RenderingContext.prototype); } catch (_) {}
+  try {
+    spoofGetParameter(WebGLRenderingContext.prototype);
+  } catch (_) {}
+  try {
+    spoofGetParameter(WebGL2RenderingContext.prototype);
+  } catch (_) {}
 
   // -------------------------------------------------------------------------
   // 4. navigator.plugins & mimeTypes — ensure non-empty (headless has [])
@@ -96,19 +112,36 @@
   try {
     if (navigator.plugins.length === 0) {
       const fakePlugin = {
-        name: 'Chrome PDF Plugin',
-        description: 'Portable Document Format',
-        filename: 'internal-pdf-viewer',
+        name: "Chrome PDF Plugin",
+        description: "Portable Document Format",
+        filename: "internal-pdf-viewer",
         length: 1,
-        item: function (i) { return this[0]; },
-        namedItem: function (name) { return this[0]; },
-        0: { type: 'application/x-google-chrome-pdf', suffixes: 'pdf', description: 'Portable Document Format', enabledPlugin: null },
+        item: function (i) {
+          return this[0];
+        },
+        namedItem: function (name) {
+          return this[0];
+        },
+        0: {
+          type: "application/x-google-chrome-pdf",
+          suffixes: "pdf",
+          description: "Portable Document Format",
+          enabledPlugin: null,
+        },
       };
-      Object.defineProperty(navigator, 'plugins', {
+      Object.defineProperty(navigator, "plugins", {
         get: function () {
           const arr = [fakePlugin];
-          arr.item = function (i) { return arr[i]; };
-          arr.namedItem = function (name) { return arr.find(function (p) { return p.name === name; }) || null; };
+          arr.item = function (i) {
+            return arr[i];
+          };
+          arr.namedItem = function (name) {
+            return (
+              arr.find(function (p) {
+                return p.name === name;
+              }) || null
+            );
+          };
           arr.refresh = function () {};
           return arr;
         },
@@ -125,11 +158,10 @@
   try {
     const origQuery = Permissions.prototype.query;
     Permissions.prototype.query = function (desc) {
-      if (desc && desc.name === 'notifications') {
-        return Promise.resolve({ state: 'prompt', onchange: null });
+      if (desc && desc.name === "notifications") {
+        return Promise.resolve({ state: "prompt", onchange: null });
       }
       return origQuery.call(this, desc);
     };
   } catch (_) {}
-
 })();

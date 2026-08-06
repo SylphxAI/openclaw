@@ -116,7 +116,12 @@ function readSourceStore(authProfilePath) {
   }
 
   const parsed = JSON.parse(fs.readFileSync(authProfilePath, "utf8"));
-  if (!parsed || typeof parsed !== "object" || !parsed.profiles || typeof parsed.profiles !== "object") {
+  if (
+    !parsed ||
+    typeof parsed !== "object" ||
+    !parsed.profiles ||
+    typeof parsed.profiles !== "object"
+  ) {
     throw new Error(`Invalid auth profile store: ${authProfilePath}`);
   }
 
@@ -147,7 +152,10 @@ async function loadSaveAuthProfileStoreFromCandidates(candidates) {
   const errors = [];
   for (const candidate of candidates) {
     try {
-      return { saveAuthProfileStore: await loadSaveAuthProfileStore(candidate), modulePath: candidate };
+      return {
+        saveAuthProfileStore: await loadSaveAuthProfileStore(candidate),
+        modulePath: candidate,
+      };
     } catch (err) {
       errors.push(`${candidate}: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -190,7 +198,8 @@ async function main() {
         return listed.length > 0 ? listed : [primary];
       })();
 
-  const { saveAuthProfileStore, modulePath } = await loadSaveAuthProfileStoreFromCandidates(candidates);
+  const { saveAuthProfileStore, modulePath } =
+    await loadSaveAuthProfileStoreFromCandidates(candidates);
   saveAuthProfileStore(source.store, options.agentDir, { syncExternalCli: false });
 
   const providers = source.profileIds

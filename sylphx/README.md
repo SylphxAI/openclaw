@@ -67,9 +67,9 @@ Runtime decisions for this customer app are recorded under [`docs/decisions/`](d
 
 ## Current Instances
 
-| Instance | Subdomain | Owner | Model |
-|---|---|---|---|
-| `epiow` | epiow.claw.sylphx.com | Epiow | `sylphx/executor` |
+| Instance | Subdomain                 | Owner | Model             |
+| -------- | ------------------------- | ----- | ----------------- |
+| `epiow`  | epiow.claw.sylphx.com     | Epiow | `sylphx/executor` |
 | `epiow2` | Epiow2 Sylphx environment | Epiow | `sylphx/executor` |
 | `epiow3` | Epiow3 Sylphx environment | Epiow | `sylphx/executor` |
 | `epiow4` | Epiow4 Sylphx environment | Epiow | `sylphx/executor` |
@@ -109,6 +109,7 @@ Sylphx Platform CD picks up the push, builds the image, and rolls the matching e
 ### 6. Share access
 
 Send the user:
+
 - **Web Chat URL:** `https://newuser.claw.sylphx.com`
 - **Gateway Token:** (the one you set in step 4)
 
@@ -157,6 +158,7 @@ Every instance includes a hardened Chromium setup that passes major bot detectio
 ### Stealth Wrapper (`chromium-stealth.sh`)
 
 Launches Chromium with anti-detection flags:
+
 - Removes `navigator.webdriver` flag
 - Disables automation infobars and Google telemetry
 - Enables WebGL via SwiftShader (software rendering that still provides WebGL contexts)
@@ -167,13 +169,13 @@ Launches Chromium with anti-detection flags:
 
 A Chrome extension that runs at `document_start` on all pages:
 
-| Override | What it does |
-|---|---|
-| `navigator.deviceMemory` | Reports 8 GB (headless default is 0 or 4) |
-| `chrome.runtime` | Stubs with native-looking `toString()` methods |
-| WebGL renderer/vendor | Spoofs to Intel UHD Graphics 630 (instead of SwiftShader) |
-| `navigator.plugins` | Injects Chrome PDF Plugin (headless has empty array) |
-| Permissions API | Returns `prompt` for notifications (headless returns `denied`) |
+| Override                 | What it does                                                   |
+| ------------------------ | -------------------------------------------------------------- |
+| `navigator.deviceMemory` | Reports 8 GB (headless default is 0 or 4)                      |
+| `chrome.runtime`         | Stubs with native-looking `toString()` methods                 |
+| WebGL renderer/vendor    | Spoofs to Intel UHD Graphics 630 (instead of SwiftShader)      |
+| `navigator.plugins`      | Injects Chrome PDF Plugin (headless has empty array)           |
+| Permissions API          | Returns `prompt` for notifications (headless returns `denied`) |
 
 ### How It Runs
 
@@ -201,6 +203,7 @@ Chromium runs in **headed mode** inside Xvfb (virtual framebuffer) at 1920x1080x
 ### Base Image (`Dockerfile.base`)
 
 Multi-stage build:
+
 1. **Builder stage** — Clones OpenClaw source, builds with pnpm, prunes dev deps
 2. **Runtime stage** — Debian Bookworm slim with:
    - Chromium + all rendering dependencies
@@ -222,51 +225,52 @@ We do **not** maintain copies of OpenClaw's default workspace templates in this 
 
 **3-layer architecture:**
 
-| Layer | Owner | Files | Updated |
-|-------|-------|-------|---------|
-| 1. OpenClaw | Upstream | AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, HEARTBEAT.md, BOOTSTRAP.md | On OpenClaw upgrade (image rebuild) |
-| 2. Customer app | This repo | BASE section in AGENTS.md (bun, mcporter, config safety) | Every boot (marker refresh) |
-| 3. Instance | Agent | IDENTITY.md, USER.md, memory files, cron, channels | Never overwritten |
+| Layer           | Owner     | Files                                                                          | Updated                             |
+| --------------- | --------- | ------------------------------------------------------------------------------ | ----------------------------------- |
+| 1. OpenClaw     | Upstream  | AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, HEARTBEAT.md, BOOTSTRAP.md | On OpenClaw upgrade (image rebuild) |
+| 2. Customer app | This repo | BASE section in AGENTS.md (bun, mcporter, config safety)                       | Every boot (marker refresh)         |
+| 3. Instance     | Agent     | IDENTITY.md, USER.md, memory files, cron, channels                             | Never overwritten                   |
 
 ### Container Entrypoint (`entrypoint.sh`)
 
 16 clean sections, executed on every boot:
 
-| # | Section | Runs |
-|---|---------|------|
-| 1 | Create persistent tenant home `/data/<tenant>/home` | First boot |
-| 2 | Bootstrap `/data/openclaw.json` and mirror OpenClaw's default state config path | First boot and after safe config changes |
-| 2b | Generate or load persistent gateway token | Every boot |
-| 3 | Bootstrap workspace + refresh BASE markers | Every boot |
-| 4 | Install auth-profiles.json into `$HOME/.openclaw/agents/main/agent` from baked file, provider env keys, or legacy migration | Every boot |
-| 5 | Fix volume ownership | Every boot |
-| 6 | Symlink `/home/node` to persistent home | Every boot |
-| 7 | Overlay `/usr/local` — persist manually installed binaries | Every boot |
-| 8 | Persist apt cache — symlink to `/data/cache/apt` | Every boot |
-| 9 | Restore packages from captured state (apt diff + pip) | Every boot |
-| 10 | Environment setup — XDG vars, package manager homes, PATH | Every boot |
-| 10.5 | Configure mcporter + Tavily MCP | First boot |
-| 11 | Start dbus + set timezone | Every boot |
-| 12 | Start Xvfb virtual display | If enabled |
-| 13 | Start Docker daemon | If available |
-| 14 | Config safety net v3 (auto-rollback on crash) | Every boot |
-| 15 | Launch OpenClaw + watchdog | Every boot |
+| #    | Section                                                                                                                     | Runs                                     |
+| ---- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 1    | Create persistent tenant home `/data/<tenant>/home`                                                                         | First boot                               |
+| 2    | Bootstrap `/data/openclaw.json` and mirror OpenClaw's default state config path                                             | First boot and after safe config changes |
+| 2b   | Generate or load persistent gateway token                                                                                   | Every boot                               |
+| 3    | Bootstrap workspace + refresh BASE markers                                                                                  | Every boot                               |
+| 4    | Install auth-profiles.json into `$HOME/.openclaw/agents/main/agent` from baked file, provider env keys, or legacy migration | Every boot                               |
+| 5    | Fix volume ownership                                                                                                        | Every boot                               |
+| 6    | Symlink `/home/node` to persistent home                                                                                     | Every boot                               |
+| 7    | Overlay `/usr/local` — persist manually installed binaries                                                                  | Every boot                               |
+| 8    | Persist apt cache — symlink to `/data/cache/apt`                                                                            | Every boot                               |
+| 9    | Restore packages from captured state (apt diff + pip)                                                                       | Every boot                               |
+| 10   | Environment setup — XDG vars, package manager homes, PATH                                                                   | Every boot                               |
+| 10.5 | Configure mcporter + Tavily MCP                                                                                             | First boot                               |
+| 11   | Start dbus + set timezone                                                                                                   | Every boot                               |
+| 12   | Start Xvfb virtual display                                                                                                  | If enabled                               |
+| 13   | Start Docker daemon                                                                                                         | If available                             |
+| 14   | Config safety net v3 (auto-rollback on crash)                                                                               | Every boot                               |
+| 15   | Launch OpenClaw + watchdog                                                                                                  | Every boot                               |
 
 ### Persistence Model
 
 6-layer architecture — agents never need to think about persistence:
 
-| Layer | What | How |
-|-------|------|-----|
-| **HOME on /data** | Auth, dotfiles, caches, browser state, tool state | `/data/<tenant>/home` = persistent HOME outside the watched workspace |
-| **Narrow workspace** | Agent-visible project and memory tree | `/workspace` -> `/data/<tenant>/home/.openclaw/workspace` |
-| **XDG env vars** | All well-behaved tool state | `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, etc. |
-| **Package manager redirect** | npm/bun/pip/go/cargo globals | `BUN_INSTALL`, `npm_config_prefix`, `PIP_USER=1`, etc. |
-| **Overlay `/usr/local`** | Manually installed binaries (gh, cloudflared) | overlayfs with upper on `/data/overlay/` |
-| **Package state capture** | apt/pip packages | `capture-package-state.sh` diffs against base image |
-| **Apt cache** | Downloaded .deb files | Symlink to `/data/cache/apt` for fast reinstall |
+| Layer                        | What                                              | How                                                                   |
+| ---------------------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
+| **HOME on /data**            | Auth, dotfiles, caches, browser state, tool state | `/data/<tenant>/home` = persistent HOME outside the watched workspace |
+| **Narrow workspace**         | Agent-visible project and memory tree             | `/workspace` -> `/data/<tenant>/home/.openclaw/workspace`             |
+| **XDG env vars**             | All well-behaved tool state                       | `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, etc.                              |
+| **Package manager redirect** | npm/bun/pip/go/cargo globals                      | `BUN_INSTALL`, `npm_config_prefix`, `PIP_USER=1`, etc.                |
+| **Overlay `/usr/local`**     | Manually installed binaries (gh, cloudflared)     | overlayfs with upper on `/data/overlay/`                              |
+| **Package state capture**    | apt/pip packages                                  | `capture-package-state.sh` diffs against base image                   |
+| **Apt cache**                | Downloaded .deb files                             | Symlink to `/data/cache/apt` for fast reinstall                       |
 
 Key paths on the persistent volume (Ceph RBD PVC):
+
 - `/data/<tenant>/home` — User home, auth, dotfiles, caches, browser state, tool configs, and other runtime state outside the watched workspace
 - `/data/<tenant>/home/.openclaw/workspace` — Agent-visible workspace, memory, identity, and project files. `/workspace` symlinks here on every boot.
 - `/data/home` — Legacy fallback only when `INSTANCE_NAME` is not set
@@ -313,6 +317,7 @@ Developer pushes to GitHub
 ### Build Base Image
 
 Base image changes (`Dockerfile.base`, stealth scripts, entrypoint) trigger a rebuild:
+
 - Built by the platform BuildKit pipeline in the cluster
 - Published to `registry.sylphx.com` with the OpenClaw version and dependency version in the tag
 

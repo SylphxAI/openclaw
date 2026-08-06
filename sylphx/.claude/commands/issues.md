@@ -28,18 +28,19 @@ gh issue list --state open
 ### Phase 3: Close and Report
 
 After fix is pushed:
+
 1. Comment on the issue with solution summary
 2. Close the issue: `gh issue close <number>`
 3. Move to next issue
 
 ## Rules
 
-* Every issue must be addressed — no omissions
-* Fix root cause, not symptoms
-* Scan for similar issues after each fix
-* Write tests for every fix
-* Commit atomically with issue reference
-* Push immediately after each fix
+- Every issue must be addressed — no omissions
+- Fix root cause, not symptoms
+- Scan for similar issues after each fix
+- Write tests for every fix
+- Commit atomically with issue reference
+- Push immediately after each fix
 
 ## Exit Condition
 
