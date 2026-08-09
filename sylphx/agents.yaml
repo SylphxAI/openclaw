@@ -2,21 +2,21 @@ defaults:
   region: lhr
   node_options: --max-old-space-size=4096 --dns-result-order=ipv4first
   model:
-    primary: sylphx/executor
+    primary: auto
     fallbacks:
   providers:
     sylphx:
       baseUrl: https://api.sylphx.ai/v1
       timeoutSeconds: 600
       models:
-      - id: executor
-        name: Sylphx Executor
+      - id: auto
+        name: Auto
         api: openai-responses
         reasoning: true
         input:
         - text
         - image
-        contextWindow: 500000
+        contextWindow: 272000
         maxTokens: 64000
 deploy:
   domain: claw.sylphx.com
@@ -67,7 +67,7 @@ instances:
   epiow:
     volume_id: vol_nly1trvkngdqoj24
     model:
-      primary: sylphx/executor
+      primary: auto
       fallbacks:
     channel:
       telegram:
@@ -84,7 +84,7 @@ instances:
           '-1003768722025': {}
   epiow2:
     model:
-      primary: sylphx/executor
+      primary: auto
       fallbacks:
     channel:
       telegram:
@@ -94,7 +94,7 @@ instances:
         - '1951959493'  # Kyle Tse
   epiow3:
     model:
-      primary: sylphx/executor
+      primary: auto
       fallbacks:
     channel:
       telegram:
@@ -104,7 +104,7 @@ instances:
         - '1951959493'  # Kyle Tse
   epiow4:
     model:
-      primary: sylphx/executor
+      primary: auto
       fallbacks:
     channel:
       telegram:
@@ -114,7 +114,7 @@ instances:
         - '1951959493'  # Kyle Tse
   epiow5:
     model:
-      primary: sylphx/executor
+      primary: auto
       fallbacks:
     channel:
       telegram:

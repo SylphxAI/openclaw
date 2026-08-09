@@ -978,14 +978,13 @@ fi
 # 13a. Config lock — enforce immutable fields from image on every boot
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-# 12b. ADR-1226 — retire Sylphx Auto product pins to Executor
+# 12b. OpenModel — point runtime model pins to the auto router product
 # ---------------------------------------------------------------------------
-# Managed PVC configs and optional /data/config-lock.override.json historically
-# pinned agents.defaults.model to sylphx/auto. Auto is retired on Sylphx AI
-# Gateway; rewrite only model product pins (never commands.native enums).
+# Sylphx AI Gateway is now OpenModel: the only public chat model is `auto`
+# (pinned to GPT-5.6 Luna). Migrate legacy family/executor pins to auto.
 # ---------------------------------------------------------------------------
 if [ -f "$CONFIG_LIVE" ] || [ -f "$DATA_DIR/config-lock.override.json" ]; then
-  log "[auto-retire] Migrating sylphx/auto model pins to sylphx/executor ..."
+  log "[openmodel] Migrating legacy model pins to auto ..."
   DATA_DIR="$DATA_DIR" python3 - <<'PYEOF'
 import json
 import os
@@ -998,35 +997,49 @@ def migrate_model_fields(data: dict) -> bool:
     changed = False
     agents = data.setdefault("agents", {}).setdefault("defaults", {})
     model = agents.get("model")
-    if model in ("auto", "sylphx/auto"):
-        agents["model"] = {"primary": "sylphx/executor", "fallbacks": []}
-        changed = True
+    # OpenModel router product is `auto` (sylphx/executor and family delisted).
+    final_primary = "auto"
+    if isinstance(model, str):
+        if model in ("auto", "sylphx/auto", "sylphx/executor", "executor"):
+            agents["model"] = {"primary": final_primary, "fallbacks": []}
+            changed = True
     elif isinstance(model, dict):
-        if model.get("primary") in ("auto", "sylphx/auto"):
-            model["primary"] = "sylphx/executor"
+        mapped = {
+            "auto": final_primary,
+            "sylphx/auto": final_primary,
+            "sylphx/executor": final_primary,
+            "executor": final_primary,
+            "sylphx/advisor": final_primary,
+            "sylphx/lumen": final_primary,
+            "sylphx/glow": final_primary,
+            "sylphx/flare": final_primary,
+        }
+        if model.get("primary") in mapped:
+            model["primary"] = mapped[model["primary"]]
             changed = True
         fb = model.get("fallbacks") or []
-        nfb = [
-            "sylphx/executor" if x in ("auto", "sylphx/auto") else x
-            for x in fb
-        ]
+        nfb = [mapped.get(x, x) for x in fb]
         if nfb != list(fb):
             model["fallbacks"] = nfb
             changed = True
     models_map = agents.get("models")
-    if isinstance(models_map, dict) and "sylphx/auto" in models_map:
-        models_map.setdefault("sylphx/executor", models_map.pop("sylphx/auto"))
-        changed = True
+    if isinstance(models_map, dict):
+        for legacy in ("sylphx/auto", "sylphx/executor"):
+            if legacy in models_map:
+                models_map.setdefault(final_primary, models_map.pop(legacy))
+                changed = True
     for m in (
         ((data.get("models") or {}).get("providers") or {})
         .get("sylphx", {})
         .get("models")
         or []
     ):
-        if isinstance(m, dict) and m.get("id") == "auto":
-            m["id"] = "executor"
-            if m.get("name") in (None, "Auto", "Sylphx Auto"):
-                m["name"] = "Sylphx Executor"
+        if isinstance(m, dict) and m.get("id") in ("auto", "executor"):
+            m["id"] = "auto"
+            if m.get("name") in (None, "Sylphx Executor", "Sylphx Auto", "Auto"):
+                m["name"] = "Auto"
+            if m.get("contextWindow") == 500000:
+                m["contextWindow"] = 272000
             changed = True
     return changed
 

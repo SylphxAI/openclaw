@@ -10,7 +10,7 @@ Epiow VMPS appeared silent in Telegram while the pod was healthy. The VMPS sessi
 
 The failing path was model routing:
 
-- OpenClaw runtime model: `sylphx/executor` (Auto product retired; ADR-1226 on sylphx-ai).
+- OpenClaw runtime model: `auto` (OpenModel router product, pinned to GPT-5.6 Luna).
 - Runtime auth profile: `sylphx:default`, provider `sylphx`, token shape `ik-*`.
 - Provider URL in locked config: `https://api.sylphx.ai/v1`.
 - `api.sylphx.ai` was missing from the `sylphx-ai-prod/web` HTTPRoute, so requests returned Cloudflare `404` with an empty body.
