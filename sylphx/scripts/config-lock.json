@@ -10,11 +10,11 @@
         "models": [
           {
             "api": "openai-responses",
-            "contextWindow": 500000,
-            "id": "executor",
+            "contextWindow": 272000,
+            "id": "auto",
             "input": ["text", "image"],
             "maxTokens": 64000,
-            "name": "Sylphx Executor",
+            "name": "Auto",
             "reasoning": true
           }
         ]
@@ -51,7 +51,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "sylphx/executor",
+        "primary": "auto",
         "fallbacks": []
       },
       "elevatedDefault": "full",
