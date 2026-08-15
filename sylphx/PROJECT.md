@@ -46,7 +46,6 @@ planning.
 - `docs/decisions/` records customer-app runtime decisions.
 - `.github/workflows/build-base.yml` provides manual base-image build escape
   hatch.
-- `.doctrine/project.json` is the machine-readable project manifest.
 
 ## Delivery
 
@@ -55,4 +54,3 @@ The normal deploy path is the Sylphx platform push deployment path. The
 operations. Production proof must include platform deployment readback, health
 evidence, and affected instance smoke evidence.
 
-The authoritative control-plane record is `.doctrine/project.json`.
