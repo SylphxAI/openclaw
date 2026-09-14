@@ -51,8 +51,10 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "auto",
-        "fallbacks": []
+        "primary": "deepseek/deepseek-flash",
+        "fallbacks": [
+          "openrouter/meta/muse-spark-1.3-contributor"
+        ]
       },
       "elevatedDefault": "full",
       "blockStreamingDefault": "off",
