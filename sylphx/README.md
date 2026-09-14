@@ -214,7 +214,7 @@ Multi-stage build:
    `docs/reference/templates/`, strips YAML frontmatter, appends customer runtime BASE section
    to AGENTS.md, and copies extra files (MEMORY.md).
 
-Manual base-image overrides are tagged `{OPENCLAW_VERSION}-deps-{DEPS_VERSION}`. Current pinned release: `v2026.9.4`; current dependency generation: `v18`. Audited source patches under `patches/openclaw/`, if present, are applied immediately after cloning the upstream tag and before dependency installation. Drop a patch only after the same fix lands in the pinned upstream tag (e.g. tsdown `OPENCLAW_TSDOWN_MAX_OLD_SPACE_MB` is upstream as of v2026.7.1; the rate-limit cooldown patch is upstream as of v2026.9.4 — `src/agents/model-fallback-cooldown.ts` keeps generic 429 backoff probeable).
+Manual base-image overrides are tagged `{OPENCLAW_VERSION}-deps-{DEPS_VERSION}`. Current pinned release: `v2026.9.4`; current dependency generation: `v19`. Audited source patches under `patches/openclaw/`, if present, are applied immediately after cloning the upstream tag and before dependency installation. Drop a patch only after the same fix lands in the pinned upstream tag (e.g. tsdown `OPENCLAW_TSDOWN_MAX_OLD_SPACE_MB` is upstream as of v2026.7.1; the rate-limit cooldown patch is upstream as of v2026.9.4 — `src/agents/model-fallback-cooldown.ts` keeps generic 429 backoff probeable). Dependency generation v19 moves the runtime base to the digest-pinned `node:24-bookworm` that OpenClaw v2026.9.4 requires (see `Dockerfile.base`).
 
 ### Workspace Template Architecture
 
