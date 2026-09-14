@@ -154,7 +154,6 @@ jobs:
             ${{ steps.meta.outputs.tags }}
           cache-from: type=registry,ref=${{ steps.meta.outputs.cache_ref }}
           cache-to: type=registry,ref=${{ steps.meta.outputs.cache_ref }},mode=min
-          cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache,mode=max
 
       - name: Summary
         run: |
