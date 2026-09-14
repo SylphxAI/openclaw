@@ -52,7 +52,7 @@ env:
   # available to Actions: publish the same recipe to GHCR with the workflow's
   # built-in GITHUB_TOKEN (packages: write). The Sylphx-registry push resumes
   # automatically once secrets.REGISTRY_AUTH exists.
-  GHCR_IMAGE: ghcr.io/sylphxai/openclaw-deploy-base
+  GHCR_IMAGE: ghcr.io/sylphxai/openclaw-runtime
 
 permissions:
   contents: read
