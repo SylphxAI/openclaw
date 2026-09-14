@@ -1,30 +1,29 @@
 # =============================================================================
-# OpenClaw Base Image Build — Build Once, Deploy Seven
+# OpenClaw Base Image Build — emergency/manual image override
 # =============================================================================
-# Builds the complete deployable image from Dockerfile.base and pushes to
+# Builds the complete deployable image from sylphx/Dockerfile.base and pushes to
 # the internal registry (registry.sylphx.com/library/openclaw-deploy-base).
 #
 # Tag strategy: {openclaw_version}-deps-{deps_version}
-#   openclaw_version: from .openclaw-version (e.g. v2026.3.23)
-#   deps_version:     from .openclaw-deps-version (e.g. v10)
-#   → registry.sylphx.com/library/openclaw-deploy-base:v2026.3.23-deps-v10
+#   openclaw_version: from sylphx/.openclaw-version
+#   deps_version:     from sylphx/.openclaw-deps-version
+#   → registry.sylphx.com/library/openclaw-deploy-base:{version}-deps-{deps}
 #
 # Triggers:
-#   - Push to main touching Dockerfile.base, entrypoint.sh, config-lock.json,
-#     chromium, workspace, or version files
 #   - Manual dispatch (with optional version overrides)
 #
 # After build:
-#   - Emergency image is available for Platform DB override or manual recovery.
-#   - Normal deploys still go through Sylphx Platform CD on git push.
+#   - The built image is available for a GitOps tenant pin (the OpenClaw
+#     tenants are digest-pinned in SylphxAI/infra) or for manual recovery.
+#   - This workflow lives at the repo root because GitHub only executes
+#     workflows under `.github/workflows/`; it previously sat in `sylphx/`
+#     and could therefore never run.
 # =============================================================================
 
 name: Build Base Image
-# NOTE: Push trigger intentionally removed — the Sylphx Platform handles all
-# builds on push via its own BuildKit mechanism (build-jobs namespace).
-# The Platform builds to registry.sylphx.com/sylphx/openclaw-openclaw:{sha}
-# and deploys via the reconciler. This workflow is kept as a manual override
-# for emergencies only.
+# NOTE: Push trigger intentionally removed. Post-cut, OpenClaw tenants are
+# digest-pinned by GitOps (SylphxAI/infra) and no platform env auto-deploys;
+# this workflow is the manual path that publishes a pinned image.
 
 on:
   workflow_dispatch:
@@ -49,7 +48,6 @@ concurrency:
 env:
   REGISTRY: registry.sylphx.com
   IMAGE_NAME: registry.sylphx.com/library/openclaw-deploy-base
-  K8S_NAMESPACE: openclaw
 
 jobs:
   build:
@@ -68,12 +66,12 @@ jobs:
         run: |
           OPENCLAW_VERSION="${{ github.event.inputs.openclaw_version }}"
           if [ -z "$OPENCLAW_VERSION" ]; then
-            OPENCLAW_VERSION=$(cat .openclaw-version 2>/dev/null | tr -d '[:space:]' || echo "latest")
+            OPENCLAW_VERSION=$(cat sylphx/.openclaw-version 2>/dev/null | tr -d '[:space:]' || echo "latest")
           fi
 
           DEPS_VERSION="${{ github.event.inputs.deps_version }}"
           if [ -z "$DEPS_VERSION" ]; then
-            DEPS_VERSION=$(cat .openclaw-deps-version 2>/dev/null | tr -d '[:space:]' || echo "v1")
+            DEPS_VERSION=$(cat sylphx/.openclaw-deps-version 2>/dev/null | tr -d '[:space:]' || echo "v1")
           fi
 
           FULL_TAG="${OPENCLAW_VERSION}-deps-${DEPS_VERSION}"
@@ -110,8 +108,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile.base
+          context: sylphx
+          file: sylphx/Dockerfile.base
           platforms: linux/amd64
           push: true
           build-args: |
