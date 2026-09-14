@@ -48,6 +48,15 @@ concurrency:
 env:
   REGISTRY: registry.sylphx.com
   IMAGE_NAME: registry.sylphx.com/library/openclaw-deploy-base
+  # Workaround target while the Sylphx registry has no robot push credential
+  # available to Actions: publish the same recipe to GHCR with the workflow's
+  # built-in GITHUB_TOKEN (packages: write). The Sylphx-registry push resumes
+  # automatically once secrets.REGISTRY_AUTH exists.
+  GHCR_IMAGE: ghcr.io/sylphxai/openclaw-deploy-base
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
@@ -81,16 +90,36 @@ jobs:
           echo "image=${{ env.IMAGE_NAME }}:${FULL_TAG}" >> "$GITHUB_OUTPUT"
           echo "OpenClaw: $OPENCLAW_VERSION  Deps: $DEPS_VERSION  Tag: $FULL_TAG"
 
+      - name: Detect registry credentials
+        id: detect
+        env:
+          REGISTRY_AUTH: ${{ secrets.REGISTRY_AUTH }}
+        run: |
+          if [ -n "$REGISTRY_AUTH" ]; then
+            echo "has_registry_auth=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_registry_auth=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set image outputs
         id: meta
         run: |
-          echo "image=${{ env.IMAGE_NAME }}:${{ steps.versions.outputs.full_tag }}" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.detect.outputs.has_registry_auth }}" = "true" ]; then
+            echo "image=${{ env.IMAGE_NAME }}:${{ steps.versions.outputs.full_tag }}" >> "$GITHUB_OUTPUT"
+            echo "tags=${{ env.IMAGE_NAME }}:${{ steps.versions.outputs.full_tag }},${{ env.GHCR_IMAGE }}:${{ steps.versions.outputs.full_tag }}" >> "$GITHUB_OUTPUT"
+            echo "cache_ref=${{ env.IMAGE_NAME }}:buildcache" >> "$GITHUB_OUTPUT"
+          else
+            echo "image=${{ env.GHCR_IMAGE }}:${{ steps.versions.outputs.full_tag }}" >> "$GITHUB_OUTPUT"
+            echo "tags=${{ env.GHCR_IMAGE }}:${{ steps.versions.outputs.full_tag }}" >> "$GITHUB_OUTPUT"
+            echo "cache_ref=${{ env.GHCR_IMAGE }}:buildcache" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Configure registry credentials
         # Write docker config.json directly — avoids shell $-expansion issues with
         # robot account names like "robot$ci-push" (the $ would be shell-expanded).
         # The REGISTRY_AUTH secret contains the base64-encoded "user:pass" string
         # exactly as Docker stores it in config.json auths.
+        if: steps.detect.outputs.has_registry_auth == 'true'
         env:
           REGISTRY_AUTH: ${{ secrets.REGISTRY_AUTH }}
         run: |
@@ -98,6 +127,13 @@ jobs:
           printf '{"auths":{"registry.sylphx.com":{"auth":"%s"}}}' "$REGISTRY_AUTH" \
             > ~/.docker/config.json
           echo "Registry credentials configured"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -115,9 +151,9 @@ jobs:
           build-args: |
             OPENCLAW_VERSION=${{ steps.versions.outputs.openclaw_version }}
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ steps.versions.outputs.full_tag }}
-            ${{ env.IMAGE_NAME }}:latest
-          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
+            ${{ steps.meta.outputs.tags }}
+          cache-from: type=registry,ref=${{ steps.meta.outputs.cache_ref }}
+          cache-to: type=registry,ref=${{ steps.meta.outputs.cache_ref }},mode=min
           cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache,mode=max
 
       - name: Summary
