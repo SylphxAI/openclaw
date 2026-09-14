@@ -4,14 +4,14 @@
 # =============================================================================
 # Builds OpenClaw from source and adds all runtime dependencies.
 # Tag strategy: {OPENCLAW_VERSION}-deps-{DEPS_VERSION}
-# Example: v2026.7.1-deps-v16
+# Example: v2026.9.4-deps-v18
 #
 # Sylphx Platform normally builds this Dockerfile through the standard
 # BuildKit pipeline. The manual base-image workflow is retained as an
 # emergency override for publishing a prebuilt image with the same recipe.
 # =============================================================================
 
-ARG OPENCLAW_VERSION=v2026.7.1
+ARG OPENCLAW_VERSION=v2026.9.4
 
 # ---------------------------------------------------------------------------
 # Stage 1: Build OpenClaw from source
