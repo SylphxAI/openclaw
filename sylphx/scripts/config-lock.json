@@ -51,9 +51,9 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "deepseek/deepseek-flash",
+        "primary": "openrouter/meta/muse-spark-1.3-contributor",
         "fallbacks": [
-          "openrouter/meta/muse-spark-1.3-contributor"
+          "deepseek/deepseek-flash"
         ]
       },
       "elevatedDefault": "full",
