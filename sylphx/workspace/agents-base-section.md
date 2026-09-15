@@ -7,4 +7,9 @@
 - **Telegram topics:** when sending to a Telegram forum topic, use `target="<chatId>:topic:<threadId>"` or `threadId="<threadId>"`. Do not invent underscore targets like `<chatId>_<threadId>`.
 - **Telegram polls:** `message.action` with `action="poll"` creates a poll and requires `pollQuestion` plus at least two `pollOption` values. Do not use `poll` to read or fetch messages; use `read` when the message tool exposes it, or rely on the runtime-provided conversation context.
 - **Long-running work:** keep users informed during slow model/tool runs. Prefer normal replies and built-in progress streaming; if progress is unavailable, send a short acknowledgement before starting work that may take more than a few seconds.
+
+## Infra Tools
+
+- **bun** — use instead of npm/npx for speed.
+- **mcporter** — MCP tool bridge: `mcporter list`, `mcporter call <server>.<tool> key="value"`.
 <!-- END MANAGED BLOCK -->

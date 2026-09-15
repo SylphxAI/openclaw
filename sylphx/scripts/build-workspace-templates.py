@@ -16,6 +16,7 @@ Usage (called from Dockerfile):
 
 import argparse
 import os
+import re
 import sys
 
 
@@ -32,6 +33,25 @@ def strip_frontmatter(content: str) -> str:
     if len(parts) < 3:
         return content
     return parts[2].lstrip()
+
+
+RETIRED_HEADING_RE = re.compile(r"^#\s+.*\bis retired\b")
+
+
+def is_retired_tombstone(content: str) -> bool:
+    """True when upstream ships this template as a retirement tombstone.
+
+    OpenClaw keeps retired workspace files in docs/reference/templates/ as
+    migration documentation only: their first heading reads
+    "# <name> is retired". Those are not bootstrap content, so they must not be
+    generated into /app/workspace/ — seeding one into a live workspace recreates
+    a file OpenClaw has retired and makes doctor report
+    tools-md-migration / heartbeat-scratch-migration on every boot.
+    """
+    for line in content.splitlines():
+        if line.strip():
+            return bool(RETIRED_HEADING_RE.match(line.strip()))
+    return False
 
 
 def main():
@@ -69,6 +89,11 @@ def main():
 
         # Strip YAML frontmatter
         content = strip_frontmatter(content)
+
+        # Retired files are upstream documentation, not workspace content.
+        if is_retired_tombstone(content):
+            print(f"  Retired (skipped): {filename}")
+            continue
 
         # For AGENTS.md, append the BASE section.
         if filename == 'AGENTS.md' and not os.path.isfile(base_section_path):
