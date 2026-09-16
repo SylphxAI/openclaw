@@ -467,6 +467,7 @@ AUTH_DEST="$AUTH_DEST_DIR/auth-profiles.json"
 LEGACY_AUTH_DEST="$DATA_DIR/agents/main/agent/auth-profiles.json"
 AUTH_HASH="$DATA_DIR/.auth-profiles.hash"
 AUTH_SQLITE_MATERIALIZER="/usr/local/lib/openclaw-materialize-auth-store.mjs"
+SQLITE_RECOVERY_SCRIPT="/usr/local/lib/openclaw-recover-sqlite-state.py"
 
 mkdir -p "$AUTH_DEST_DIR"
 
@@ -563,12 +564,40 @@ else
   log "No auth-profiles.json found at $AUTH_SRC — setup tokens not configured"
 fi
 
+# ---------------------------------------------------------------------------
+# 4b. SQLite crash recovery — clear stale rollback journals before any writer
+# ---------------------------------------------------------------------------
+# A storage fault (or an OOM-killed / SIGKILLed gateway) can leave a rollback
+# journal or a stale generation lock on the PVC. OpenClaw's own SQLite open path
+# treats a sidecar journal as "another process owns this database" and falls
+# back to a read-only connection, so the auth-store materializer below fails
+# with "attempt to write a readonly database" and the entrypoint exits 1. That
+# wedges the tenant in CrashLoopBackOff until someone clears the PVC by hand.
+#
+# Recovery opens each database once so SQLite performs hot-journal rollback
+# itself, then removes only SQLite sidecars and known writer-lock files. User
+# data is never touched.
+# ---------------------------------------------------------------------------
+if [ -d "$OPENCLAW_STATE_DIR" ]; then
+  log "[sqlite-recovery] Checking state databases for stale journals ..."
+  SQLITE_RECOVERY_OUTPUT=$(PERSISTENT_HOME="$PERSISTENT_HOME" \
+    OPENCLAW_STATE_DIR="$OPENCLAW_STATE_DIR" \
+    python3 "$SQLITE_RECOVERY_SCRIPT" 2>&1) || true
+  [ -n "$SQLITE_RECOVERY_OUTPUT" ] && log "[sqlite-recovery] $SQLITE_RECOVERY_OUTPUT"
+  # Ownership may have drifted while a root-owned recovery step ran.
+  chown -R "$NODE_UID:$NODE_GID" "$OPENCLAW_STATE_DIR/agents" 2>/dev/null || true
+fi
+
 if [ -f "$AUTH_DEST" ]; then
   log "[auth-store] Materializing OpenClaw SQLite auth store from $AUTH_DEST ..."
   AUTH_MATERIALIZE_OUTPUT=$(runuser -u node -- env \
       HOME="$PERSISTENT_HOME" \
       OPENCLAW_STATE_DIR="$OPENCLAW_STATE_DIR" \
       OPENCLAW_CONFIG_PATH="$CONFIG_LIVE" \
+      XDG_CACHE_HOME="$PERSISTENT_HOME/.cache" \
+      XDG_CONFIG_HOME="$PERSISTENT_HOME/.config" \
+      XDG_DATA_HOME="$PERSISTENT_HOME/.local/share" \
+      XDG_STATE_HOME="$PERSISTENT_HOME/.local/state" \
       node "$AUTH_SQLITE_MATERIALIZER" \
       --agent-dir "$AUTH_DEST_DIR" \
       --auth-profile "$AUTH_DEST" 2>&1) || {

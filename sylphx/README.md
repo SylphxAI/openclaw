@@ -141,6 +141,34 @@ Each instance inherits defaults. Override per-instance only when different.
 
 `sylphx.json` is the customer app contract consumed by Sylphx platform. It declares the product service template (`openclaw`) and product runtime intent. Concrete instance names such as `openclaw-epiow`, PVC names, namespaces, routes, and backend refs are platform-owned state.
 
+### Config lock and the PVC override
+
+Two files participate in every boot:
+
+| Path | Owner | Role |
+|---|---|---|
+| `/app/config-lock.json` | This repo, baked into the image | Platform-owned locked fields |
+| `/data/config-lock.override.json` | The tenant PVC | Optional override; **wins** when present |
+
+The entrypoint uses the PVC override as the lock whenever
+`/data/config-lock.override.json` exists. That file is the escape hatch for
+changing a locked field without waiting for an image build — and it is why a
+tenant can be correct while the image is stale.
+
+Consequences to respect:
+
+- The override is **not** a source of truth. A change made only there is invisible
+  to `git`, lost on PVC replacement, and absent for a newly created instance.
+- Land the same value in `sylphx/scripts/config-lock.json` (and `agents.yaml`
+  when it declares intent) so the image converges to it. Remove the override
+  once the image carries the value, or keep it deliberately and say why.
+- To inspect the effective lock:
+
+```bash
+kubectl -n <env-namespace> exec deploy/openclaw -- \
+  python3 -c 'import json;d=json.load(open("/data/config-lock.override.json"));print(json.dumps(d["agents"]["defaults"]["model"]))'
+```
+
 ### Secrets & Config Templating
 
 Secrets are **never** stored in the repo. Sylphx project environment secrets hold credentials. The entrypoint substitutes `${VAR_NAME}` placeholders with environment variables injected at runtime.
@@ -341,6 +369,26 @@ Recovery is handled through Sylphx Platform CD + Ceph:
 2. **Node failure**: Pod rescheduled to another node. Ceph PVC reattaches.
 3. **Cluster rebuild**: Platform reconciles customer apps back from project/environment state. Ceph data survives if OSDs intact.
 4. **Full disaster**: Restore from platform database backups and PVC snapshots, then redeploy through Sylphx Platform CD.
+
+### Storage fault and stale SQLite journals
+
+A storage fault that makes `/data` read-only, or an OOM/SIGKILL of the gateway,
+can leave a rollback journal or an OpenClaw writer lock on the volume. OpenClaw
+then refuses a writable SQLite connection and the container fails at startup
+with `attempt to write a readonly database`.
+
+This is now self-healing. Boot step 4b runs
+[`scripts/recover-sqlite-state.py`](scripts/recover-sqlite-state.py), which rolls
+hot journals back and clears only SQLite sidecars and known lock files, before
+any OpenClaw writer starts. Look for:
+
+```text
+[entrypoint] [sqlite-recovery] {"state_dir": ..., "checked": N, "removed": M, "failures": []}
+```
+
+Do not clear a PVC by hand for this class. If recovery reports a non-empty
+`failures` list, capture that line and escalate — it means a database could not
+be opened.
 
 All secrets are stored in 1Password (vault: Sylphx, tag: `openclaw`).
 

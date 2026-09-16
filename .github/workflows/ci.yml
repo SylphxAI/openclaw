@@ -100,7 +100,7 @@ jobs:
             esac
 
             case "$path" in
-              src/*|test/*|extensions/*|packages/*|scripts/*|ui/*|.github/*|openclaw.mjs|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|tsconfig*.json|vitest*.ts|tsdown.config.ts|.oxlintrc.json|.oxfmtrc.jsonc)
+              src/*|test/*|extensions/*|packages/*|scripts/*|sylphx/*|ui/*|.github/*|openclaw.mjs|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|tsconfig*.json|vitest*.ts|tsdown.config.ts|.oxlintrc.json|.oxfmtrc.jsonc)
                 run_node=true
                 ;;
             esac
@@ -239,6 +239,31 @@ jobs:
 
       - name: Check types and lint and oxfmt
         run: pnpm check
+
+  # Customer-app runtime scripts (sylphx/) guard fleet boot. They are plain
+  # Python/Node helpers the entrypoint runs, not part of the pnpm workspace, so
+  # they carry their own tests.
+  sylphx-scripts:
+    name: "sylphx scripts"
+    needs: [docs-scope]
+    if: needs.docs-scope.outputs.docs_only != 'true'
+    runs-on: sylphx-linux-large
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Run boot-recovery unit tests
+        run: |
+          set -euo pipefail
+          python3 sylphx/scripts/recover-sqlite-state.test.py
+
+      - name: Validate shell and Python entrypoint inputs
+        run: |
+          set -euo pipefail
+          bash -n sylphx/scripts/entrypoint.sh
+          python3 -m py_compile sylphx/scripts/recover-sqlite-state.py
 
   # Validate docs (format, lint, broken links) only when docs files changed.
   check-docs:

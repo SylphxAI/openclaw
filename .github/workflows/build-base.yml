@@ -11,6 +11,11 @@
 #
 # Triggers:
 #   - Manual dispatch (with optional version overrides)
+#   - Push to main that changes the image inputs (Dockerfile.base, sylphx/scripts,
+#     sylphx/workspace, sylphx/.openclaw-version, sylphx/.openclaw-deps-version).
+#     Without this, a merged runtime or config-lock change never reaches an
+#     image: the tenants keep running the previous digest while the repository
+#     says otherwise, and the divergence is only discovered during an incident.
 #
 # After build:
 #   - The built image is available for a GitOps tenant pin (the OpenClaw
@@ -40,6 +45,17 @@ on:
         description: "Force rebuild even if image already exists"
         type: boolean
         default: false
+  push:
+    branches:
+      - main
+    paths:
+      - "sylphx/Dockerfile.base"
+      - "sylphx/scripts/**"
+      - "sylphx/workspace/**"
+      - "sylphx/patches/**"
+      - "sylphx/.openclaw-version"
+      - "sylphx/.openclaw-deps-version"
+      - ".github/workflows/build-base.yml"
 
 concurrency:
   group: build-base
@@ -83,12 +99,20 @@ jobs:
             DEPS_VERSION=$(cat sylphx/.openclaw-deps-version 2>/dev/null | tr -d '[:space:]' || echo "v1")
           fi
 
-          FULL_TAG="${OPENCLAW_VERSION}-deps-${DEPS_VERSION}"
+          # The tenants are digest-pinned, so a moving tag is a trap: re-pushing
+          # {version}-deps-{deps} with different contents makes the same string
+          # resolve to a new digest and silently re-points nothing (the pin still
+          # names the old digest). Append a short content hash of the image
+          # inputs so every distinct build has its own tag and the pinned digest
+          # is always reproducible.
+          INPUTS_HASH=$(git ls-files -s sylphx/Dockerfile.base sylphx/scripts sylphx/workspace sylphx/patches 2>/dev/null | git hash-object --stdin | cut -c1-12)
+          FULL_TAG="${OPENCLAW_VERSION}-deps-${DEPS_VERSION}-${INPUTS_HASH}"
           echo "openclaw_version=$OPENCLAW_VERSION" >> "$GITHUB_OUTPUT"
           echo "deps_version=$DEPS_VERSION"         >> "$GITHUB_OUTPUT"
           echo "full_tag=$FULL_TAG"                 >> "$GITHUB_OUTPUT"
           echo "image=${{ env.IMAGE_NAME }}:${FULL_TAG}" >> "$GITHUB_OUTPUT"
           echo "OpenClaw: $OPENCLAW_VERSION  Deps: $DEPS_VERSION  Tag: $FULL_TAG"
+          echo "### Image tag\n\n\`$FULL_TAG\`\n" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Detect registry credentials
         id: detect
