@@ -54,13 +54,30 @@ def is_lock_file(path: Path) -> bool:
     return any(path.name.endswith(suffix) for suffix in LOCK_SUFFIXES)
 
 
+def database_bases(root: Path):
+    """Directories that hold OpenClaw databases.
+
+    Deliberately narrow. A blanket walk of the state directory descends into
+    the agent workspace (node_modules, git checkouts) and exhausts the process
+    file-descriptor budget with EMFILE, which is worse than the bug being fixed.
+    """
+    yield root / "state"
+    agents = root / "agents"
+    if agents.is_dir():
+        # agents/<agentId>/agent/openclaw-agent.sqlite
+        for agent_dir in agents.iterdir():
+            if agent_dir.is_dir():
+                yield agent_dir / "agent"
+
+
 def iter_databases(root: Path):
-    if not root.is_dir():
-        return
-    for path in sorted(root.rglob("*.sqlite")):
-        if is_lock_file(path) or not path.is_file():
+    for base in database_bases(root):
+        if not base.is_dir():
             continue
-        yield path
+        for path in sorted(base.glob("*.sqlite")):
+            if is_lock_file(path) or not path.is_file():
+                continue
+            yield path
 
 
 def roll_back(database: Path) -> str | None:
@@ -109,10 +126,13 @@ def main() -> int:
 
     for suffix in LOCK_SUFFIXES:
         for pattern in (f"*{suffix}", f"*{suffix}-journal"):
-            for lock in root.rglob(pattern):
-                if lock.is_file():
-                    remove(lock)
-                    removed += 1
+            for base in database_bases(root):
+                if not base.is_dir():
+                    continue
+                for lock in base.glob(pattern):
+                    if lock.is_file():
+                        remove(lock)
+                        removed += 1
 
     print(
         json.dumps(

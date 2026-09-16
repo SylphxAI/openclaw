@@ -143,6 +143,44 @@ def test_missing_state_dir_is_not_fatal() -> None:
         assert report["failures"] == [], report
 
 
+def test_ignores_workspace_tree_and_avoids_emfile() -> None:
+    """A deep workspace tree must not be walked.
+
+    Real volumes carry node_modules and git checkouts under the agent
+    workspace. A recursive walk of the whole state directory exhausts the
+    process file-descriptor budget with EMFILE and fails the boot step, so the
+    scan must only look at the known database directories.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        state_dir = Path(tmp) / ".openclaw"
+        make_database(state_dir / "agents/main/agent/openclaw-agent.sqlite")
+        make_database(state_dir / "state/openclaw.sqlite")
+
+        # A deep, wide tree that a recursive walk would descend into.
+        noise = state_dir / "workspace/tmp/deps/node_modules"
+        noise.mkdir(parents=True)
+        for index in range(600):
+            (noise / f"pkg-{index}").mkdir()
+            (noise / f"pkg-{index}/index.js").write_text("x")
+
+        report = run_recovery(state_dir)
+        assert report["failures"] == [], report
+        assert report["checked"] == 2, report
+
+
+def test_lock_files_inside_workspace_are_left_alone() -> None:
+    """Lock-suffix files outside the database dirs must not be touched."""
+    with tempfile.TemporaryDirectory() as tmp:
+        state_dir = Path(tmp) / ".openclaw"
+        make_database(state_dir / "state/openclaw.sqlite")
+        stray = state_dir / "workspace/some.generation-lock.sqlite"
+        stray.parent.mkdir(parents=True, exist_ok=True)
+        stray.write_bytes(b"not-ours")
+
+        run_recovery(state_dir)
+        assert stray.exists(), "recovery reached outside the database directories"
+
+
 def main() -> int:
     module = load_module()
     assert module.SIDECAR_SUFFIXES[0] == "-journal"
@@ -151,6 +189,8 @@ def main() -> int:
         test_removes_stale_locks_and_sidecars_only,
         test_noop_when_state_dir_clean,
         test_missing_state_dir_is_not_fatal,
+        test_ignores_workspace_tree_and_avoids_emfile,
+        test_lock_files_inside_workspace_are_left_alone,
     ]
     for test in tests:
         test()
