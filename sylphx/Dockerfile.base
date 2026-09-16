@@ -323,6 +323,7 @@ COPY scripts/capture-package-state.sh /usr/local/bin/capture-package-state
 RUN chmod +x /usr/local/bin/capture-package-state
 
 COPY scripts/materialize-auth-store.mjs /usr/local/lib/openclaw-materialize-auth-store.mjs
+COPY scripts/recover-sqlite-state.py /usr/local/lib/openclaw-recover-sqlite-state.py
 
 # Memory consolidation helper (MEMORY.md scrub + archive + curated rewrite)
 COPY scripts/memory-consolidate.mjs /usr/local/lib/openclaw-memory-consolidate.mjs
