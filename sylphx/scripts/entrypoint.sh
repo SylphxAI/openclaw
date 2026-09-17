@@ -402,10 +402,36 @@ export OPENCLAW_GATEWAY_TOKEN
 # Every boot: refresh managed blocks (BEGIN/END MANAGED BLOCK) in workspace files.
 # Agent-owned content outside the managed blocks is never touched.
 # ---------------------------------------------------------------------------
+# Retired workspace files (for example TOOLS.md and HEARTBEAT.md) are shipped by
+# OpenClaw under docs/reference/templates/ as migration documentation only. Their
+# first heading reads "# <filename> is retired". Seeding one into a live workspace
+# recreates a file OpenClaw has retired, which makes doctor report
+# tools-md-migration / heartbeat-scratch-migration on every boot. Skip them here
+# and drop a copy seeded by an earlier boot; agents never author that heading, so
+# the match is safe.
+is_retired_workspace_file() {
+  local file="$1"
+  local fname="$2"
+  [ -f "$file" ] || return 1
+  [ "$(grep -m1 -E '^#[[:space:]]' "$file" 2>/dev/null || true)" = "# $fname is retired" ]
+}
+
+is_retired_template() {
+  local file="$1"
+  [ -f "$file" ] || return 1
+  case "$(grep -m1 -E '^#[[:space:]]' "$file" 2>/dev/null || true)" in
+    *" is retired") return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 if [ -d "$WORKSPACE_TEMPLATE" ] && [ -n "$(ls -A "$WORKSPACE_TEMPLATE" 2>/dev/null)" ]; then
   # Copy template files that don't already exist (e.g., MEMORY.md)
   for tmpl_file in "$WORKSPACE_TEMPLATE"/*; do
     fname=$(basename "$tmpl_file")
+    if is_retired_template "$tmpl_file"; then
+      continue
+    fi
     if [ ! -f "$WORKSPACE/$fname" ]; then
       cp "$tmpl_file" "$WORKSPACE/$fname" 2>/dev/null || true
       chown "$NODE_UID:$NODE_GID" "$WORKSPACE/$fname" 2>/dev/null || true
@@ -413,6 +439,13 @@ if [ -d "$WORKSPACE_TEMPLATE" ] && [ -n "$(ls -A "$WORKSPACE_TEMPLATE" 2>/dev/nu
     fi
   done
 fi
+
+# Drop retired workspace files seeded by an earlier image or legacy-home migration.
+for fname in AGENTS.md AGENTS.dev.md BOOT.md BOOTSTRAP.md CLAUDE.md HEARTBEAT.md IDENTITY.md IDENTITY.dev.md MEMORY.md SOUL.md SOUL.dev.md TOOLS.md TOOLS.dev.md USER.md USER.dev.md; do
+  if is_retired_workspace_file "$WORKSPACE/$fname" "$fname"; then
+    rm -f "$WORKSPACE/$fname" && log "Removed retired workspace file: $fname"
+  fi
+done
 
 # Refresh managed blocks in workspace files (generic — any .md with BEGIN/END MANAGED BLOCK)
 for tmpl_file in "$WORKSPACE_TEMPLATE"/*.md; do
