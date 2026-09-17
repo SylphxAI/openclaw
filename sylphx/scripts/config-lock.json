@@ -24,6 +24,9 @@
   "tools": {
     "profile": "full",
     "deny": null,
+    "codeMode": {
+      "enabled": false
+    },
     "elevated": {
       "enabled": true,
       "allowFrom": {
