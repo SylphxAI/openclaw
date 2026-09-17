@@ -88,12 +88,27 @@ def roll_back(database: Path) -> str | None:
         return f"{database}: {error}"
     try:
         connection.execute("PRAGMA journal_mode=DELETE")
-        connection.execute("PRAGMA integrity_check").fetchone()
         connection.commit()
     except sqlite3.Error as error:
         return f"{database}: {error}"
     finally:
         connection.close()
+    # Verify on a fresh connection. Opening a database that still carried a hot
+    # journal can transiently report "database disk image is malformed" while
+    # the rollback settles, so checking on the same handle produced a false
+    # alarm on a live tenant. Re-open read-only and check there instead.
+    try:
+        verify = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
+    except sqlite3.Error as error:
+        return f"{database}: {error}"
+    try:
+        result = verify.execute("PRAGMA quick_check").fetchone()
+        if result and result[0] != "ok":
+            return f"{database}: quick_check reported {result[0]}"
+    except sqlite3.Error as error:
+        return f"{database}: {error}"
+    finally:
+        verify.close()
     return None
 
 

@@ -37,8 +37,7 @@ def make_database(path: Path, rows: int = 1) -> None:
     connection = sqlite3.connect(path)
     connection.execute("PRAGMA journal_mode=delete")
     connection.execute("CREATE TABLE IF NOT EXISTS t(x)")
-    for value in range(rows):
-        connection.execute("INSERT INTO t VALUES (?)", (value,))
+    connection.executemany("INSERT INTO t VALUES (?)", ((value,) for value in range(rows)))
     connection.commit()
     connection.close()
 
@@ -181,6 +180,33 @@ def test_lock_files_inside_workspace_are_left_alone() -> None:
         assert stray.exists(), "recovery reached outside the database directories"
 
 
+def test_recovery_never_reports_failure_for_a_healthy_rolled_back_database() -> None:
+    """After a successful rollback the report must be clean.
+
+    Live context: the boot recovery logged `failures: [... database disk image
+    is malformed]` for a tenant whose database was in fact healthy (a full
+    `integrity_check` returned ok and the tenant was serving traffic). The
+    check now runs on a fresh read-only handle after the rollback commits.
+    This test pins the invariant the log must satisfy for a healthy database:
+    rolled back, no failure reported, data intact.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        state_dir = Path(tmp) / ".openclaw"
+        database = state_dir / "agents/main/agent/openclaw-agent.sqlite"
+        make_database(database, rows=2000)
+        leave_hot_journal(database)
+        assert Path(f"{database}-journal").exists()
+
+        report = run_recovery(state_dir)
+        assert report["failures"] == [], report
+        assert report["checked"] == 1, report
+
+        verify = sqlite3.connect(database)
+        assert verify.execute("PRAGMA integrity_check").fetchone() == ("ok",)
+        assert verify.execute("SELECT count(*) FROM t").fetchone() == (2000,)
+        verify.close()
+
+
 def main() -> int:
     module = load_module()
     assert module.SIDECAR_SUFFIXES[0] == "-journal"
@@ -191,6 +217,7 @@ def main() -> int:
         test_missing_state_dir_is_not_fatal,
         test_ignores_workspace_tree_and_avoids_emfile,
         test_lock_files_inside_workspace_are_left_alone,
+        test_recovery_never_reports_failure_for_a_healthy_rolled_back_database,
     ]
     for test in tests:
         test()
