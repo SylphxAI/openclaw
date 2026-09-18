@@ -1,10 +1,14 @@
 defaults:
   region: lhr
-  node_options: --max-old-space-size=4096 --dns-result-order=ipv4first
+  # Heap must stay below the container memory limit. The tenant limit is 4Gi and
+  # Node also holds non-heap RSS (buffers, native, Chromium children), so a
+  # 4096 MB heap yields a ~4288 MB V8 limit inside a 4096 MB cgroup and the
+  # kernel OOM-kills the gateway. 3072 MB leaves headroom without shrinking the
+  # working set below what the tenants actually use.
+  node_options: --max-old-space-size=3072 --dns-result-order=ipv4first
   model:
     primary: deepseek/deepseek-flash
-    fallbacks:
-      - openrouter/meta/muse-spark-1.3-contributor
+    fallbacks: []
   providers:
     sylphx:
       baseUrl: https://api.sylphx.ai/v1
@@ -69,8 +73,7 @@ instances:
     volume_id: vol_nly1trvkngdqoj24
     model:
       primary: deepseek/deepseek-flash
-      fallbacks:
-        - openrouter/meta/muse-spark-1.3-contributor
+      fallbacks: []
     channel:
       telegram:
         dmPolicy: pairing
@@ -87,8 +90,7 @@ instances:
   epiow2:
     model:
       primary: deepseek/deepseek-flash
-      fallbacks:
-        - openrouter/meta/muse-spark-1.3-contributor
+      fallbacks: []
     channel:
       telegram:
         dmPolicy: pairing
@@ -98,8 +100,7 @@ instances:
   epiow3:
     model:
       primary: deepseek/deepseek-flash
-      fallbacks:
-        - openrouter/meta/muse-spark-1.3-contributor
+      fallbacks: []
     channel:
       telegram:
         dmPolicy: pairing
@@ -109,8 +110,7 @@ instances:
   epiow4:
     model:
       primary: deepseek/deepseek-flash
-      fallbacks:
-        - openrouter/meta/muse-spark-1.3-contributor
+      fallbacks: []
     channel:
       telegram:
         dmPolicy: pairing
@@ -120,8 +120,7 @@ instances:
   epiow5:
     model:
       primary: deepseek/deepseek-flash
-      fallbacks:
-        - openrouter/meta/muse-spark-1.3-contributor
+      fallbacks: []
     channel:
       telegram:
         dmPolicy: pairing
